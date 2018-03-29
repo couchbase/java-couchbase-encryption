@@ -24,7 +24,7 @@ package com.couchbase.client.crypto;
  */
 public class AES256CryptoProvider extends AESCryptoProviderBase {
 
-    protected static final String NAME = "AES-256-HMAC-SHA256";
+    public static final String NAME = "AES-256-HMAC-SHA256";
 
     /**
      * Create an instance of the crypto algorithm provider with the same key used

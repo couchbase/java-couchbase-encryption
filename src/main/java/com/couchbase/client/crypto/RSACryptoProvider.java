@@ -36,7 +36,7 @@ public class RSACryptoProvider implements CryptoProvider {
     private String keyName;
     private final String SIGNATURE_ALG = "SHA256withRSA";
     private final String CRYPTO_ALG = "RSA";
-    protected static final String  NAME = "RSA-2048";
+    public static final String NAME = "RSA-2048";
 
     /**
      * Create an instance of the RSA Cryto pro
@@ -199,6 +199,6 @@ public class RSACryptoProvider implements CryptoProvider {
     }
 
     public String getProviderName() {
-        return CRYPTO_ALG;
+        return NAME;
     }
 }
