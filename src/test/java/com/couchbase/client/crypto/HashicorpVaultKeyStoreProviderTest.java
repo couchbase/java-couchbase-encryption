@@ -17,6 +17,7 @@
 package com.couchbase.client.crypto;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.crypto.KeyGenerator;
@@ -24,6 +25,7 @@ import javax.crypto.SecretKey;
 import java.security.SecureRandom;
 import java.util.Arrays;
 
+@Ignore("Requires hashicorp vault to be setup")
 public class HashicorpVaultKeyStoreProviderTest {
 
     @Test
