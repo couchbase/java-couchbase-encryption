@@ -8,7 +8,7 @@ used by the Couchbase Java SDK to provide field level encryption.
 
 The project supports the following cryptographic algorithms
 
-* `AES-1128`
+* `AES-128`
 * `AES-256`
 * `RSA`
 
