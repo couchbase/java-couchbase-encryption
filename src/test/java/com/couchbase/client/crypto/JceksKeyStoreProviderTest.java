@@ -32,12 +32,12 @@ public class JceksKeyStoreProviderTest {
         JceksKeyStoreProvider provider = new JceksKeyStoreProvider();
         KeyGenerator keyGen = KeyGenerator.getInstance("AES");
         SecureRandom random = new SecureRandom();
-        keyGen.init(256, random);
+        keyGen.init(128, random);
         SecretKey secretKey = keyGen.generateKey();
         String keyName = "testkey";
         provider.storeKey(keyName, secretKey.getEncoded());
         byte[] secret = provider.getKey(keyName);
-        AES256CryptoProvider cryptoProvider = new AES256CryptoProvider(provider, keyName);
+        AES128CryptoProvider cryptoProvider = new AES128CryptoProvider(provider, keyName);
         String encrypted = Base64.encode(cryptoProvider.encrypt("test".getBytes()));
         String decrypted = new String(cryptoProvider.decrypt(Base64.decode(encrypted)));
         Assert.assertTrue(Arrays.equals(secret, secretKey.getEncoded()));
