@@ -41,12 +41,14 @@ public interface CryptoProvider {
     /**
      * Get the default key name used by the provider
      *
-     * @return
+     * @return key name
      */
     String getKeyName();
 
     /**
      * Set the default key name to be used by the provider
+     *
+     * @param keyName key name
      */
     void setKeyName(String keyName);
 
@@ -55,7 +57,9 @@ public interface CryptoProvider {
      * if the key store and key name are not set.
      *
      * @param data Data to be encrypted
-     * @return Encrypted bytes
+     * @param keyName key name to be used
+     * @return encrypted bytes
+     * @throws Exception on failure
      */
     byte[] encrypt(byte[] data, String keyName) throws Exception;
 
@@ -64,7 +68,8 @@ public interface CryptoProvider {
      * key name are not set.
      *
      * @param data Data to be encrypted
-     * @return Encrypted bytes
+     * @return encrypted bytes
+     * @throws Exception on failure
      */
     byte[] encrypt(byte[] data) throws Exception;
 
@@ -80,7 +85,9 @@ public interface CryptoProvider {
      * if the key store and key name are not set.
      *
      * @param encrypted Encrypted data
-     * @return Decrypted bytes
+     * @param keyName key name to be used
+     * @return decrypted bytes
+     * @throws Exception on failure
      */
     byte[] decrypt(byte[] encrypted, String keyName) throws Exception;
 
@@ -89,7 +96,8 @@ public interface CryptoProvider {
      * if the key store and key name are not set.
      *
      * @param encrypted Encrypted data
-     * @return Decrypted bytes
+     * @return decrypted bytes
+     * @throws Exception on failure
      */
     byte[] decrypt(byte[] encrypted) throws Exception;
 
@@ -97,7 +105,9 @@ public interface CryptoProvider {
      * Get the signature for the integrity check using the key given.
      *
      * @param message The message to check for correctness
+     * @param keyName key name to be used
      * @return signature
+     * @throws Exception on failure
      */
     byte[] getSignature(byte[] message, String keyName) throws Exception;
 
@@ -106,6 +116,7 @@ public interface CryptoProvider {
      *
      * @param message The message to check for correctness
      * @return signature
+     * @throws Exception on failure
      */
     byte[] getSignature(byte[] message) throws Exception;
 
@@ -114,7 +125,8 @@ public interface CryptoProvider {
      *
      * @param message The message to check for correctness
      * @param signature Signature used for message
-     * @return signature
+     * @return True if success
+     * @throws Exception on failure
      */
     boolean verifySignature(byte[] message, byte[] signature) throws Exception;
 
@@ -124,14 +136,14 @@ public interface CryptoProvider {
      * @param message The message to check for correctness
      * @param signature Signature used for message
      * @param keyName HMAC key name
-     * @return signature
+     * @return True if success
+     * @throws Exception on failure
      */
     boolean verifySignature(byte[] message, byte[] signature, String keyName) throws Exception;
 
     /**
      * Get the crypto provider name.
-     *
-     * @return name
+     * @return provider name
      */
      String getProviderName();
 }

@@ -30,7 +30,7 @@ public interface KeyStoreProvider {
      * @param keyName The key to be retrieved for secret keys. Add suffix _public/_private to retrieve
      *                public/private key
      * @return key Key as raw bytes
-     * @throws Exception
+     * @throws Exception on failure
      */
     byte[] getKey(String keyName) throws Exception;
 
@@ -39,7 +39,7 @@ public interface KeyStoreProvider {
      *
      * @param keyName   Name of the secret key
      * @param secretKey Secret key as byes
-     * @throws Exception
+     * @throws Exception on failure
      */
     void storeKey(String keyName, byte[] secretKey) throws Exception;
 
@@ -49,7 +49,7 @@ public interface KeyStoreProvider {
      * @param keyName    Common name for the keys
      * @param publicKey  Public key as bytes
      * @param privateKey Private key as bytes
-     * @throws Exception
+     * @throws Exception on failure
      */
     void storeKey(String keyName, byte[] publicKey, byte[] privateKey) throws Exception;
 }

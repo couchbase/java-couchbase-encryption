@@ -39,7 +39,7 @@ public class JceksKeyStoreProvider implements KeyStoreProvider {
      * Creates an instance of the JCEKS key store provider
      *
      * @param keyPassword password for key protection. Default password is the key name.
-     * @throws Exception
+     * @throws Exception on failure
      */
     public JceksKeyStoreProvider(String keyPassword) throws Exception {
         this.ks = KeyStore.getInstance("JCEKS");
@@ -53,7 +53,7 @@ public class JceksKeyStoreProvider implements KeyStoreProvider {
      * @param stream      Input stream to use an existing key store
      * @param password    Password for the key store
      * @param keyPassword password for key protection. Default password is the key name.
-     * @throws Exception
+     * @throws Exception on failure
      */
     public JceksKeyStoreProvider(InputStream stream, char[] password, String keyPassword) throws Exception {
         this.ks = KeyStore.getInstance("JCEKS");
