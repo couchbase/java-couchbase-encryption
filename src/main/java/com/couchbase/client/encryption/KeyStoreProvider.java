@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.couchbase.client.crypto;
+package com.couchbase.client.encryption;
 
 /**
- * Key provider interface for key store implementations.
+ * Key provider interface for key store implementation.
  *
  * @author Subhashni Balakrishnan
  * @since 0.1.0
@@ -35,21 +35,53 @@ public interface KeyStoreProvider {
     byte[] getKey(String keyName) throws Exception;
 
     /**
-     * Add a secret key for symmetric key encryption
+     * Add a key
      *
-     * @param keyName   Name of the secret key
-     * @param secretKey Secret key as byes
+     * @param keyName Name of the key
+     * @param key Secret key as byes
      * @throws Exception on failure
      */
-    void storeKey(String keyName, byte[] secretKey) throws Exception;
+    void storeKey(String keyName, byte[] key) throws Exception;
 
     /**
-     * Add public and private keys for asymmetric key encryption/decryption.
+     * Get the name of the encryption key
      *
-     * @param keyName    Common name for the keys
-     * @param publicKey  Public key as bytes
-     * @param privateKey Private key as bytes
-     * @throws Exception on failure
+     * @return encryption key name
      */
-    void storeKey(String keyName, byte[] publicKey, byte[] privateKey) throws Exception;
+    String publicKeyName();
+
+    /**
+     * Set the name of the encryption key
+     *
+     * @param name encryption key
+     */
+    void publicKeyName(String name);
+
+    /**
+     * Get the private key name set
+     *
+     * @return private key name
+     */
+    String privateKeyName();
+
+    /**
+     * Set the private key name required for an asymmetic cryptographic algorithm
+     *
+     * @param name
+     */
+    void privateKeyName(String name);
+
+    /**
+     * Get the signing key name/password set
+     *
+     * @return name
+     */
+    String signingKeyName();
+
+    /**
+     * Set signing key name/password
+     *
+     * @param name Signing key name
+     */
+    void signingKeyName(String name);
 }

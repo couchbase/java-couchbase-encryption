@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.couchbase.client.crypto;
+package com.couchbase.client.encryption;
 
-import com.couchbase.client.crypto.utils.Base64;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.crypto.KeyGenerator;
@@ -25,22 +25,19 @@ import javax.crypto.SecretKey;
 import java.security.SecureRandom;
 import java.util.Arrays;
 
-public class JceksKeyStoreProviderTest {
+@Ignore("Requires hashicorp vault to be setup")
+public class HashicorpVaultKeyStoreProviderTest {
 
     @Test
     public void testSimpleKeyStore() throws Exception {
-        JceksKeyStoreProvider provider = new JceksKeyStoreProvider();
+        HashicorpVaultKeyStoreProvider provider = new HashicorpVaultKeyStoreProvider("127.0.0.1:8200", "9767eb5d-3faa-f055-b58e-f86a8e376f94");
         KeyGenerator keyGen = KeyGenerator.getInstance("AES");
         SecureRandom random = new SecureRandom();
         keyGen.init(128, random);
         SecretKey secretKey = keyGen.generateKey();
         String keyName = "testkey";
         provider.storeKey(keyName, secretKey.getEncoded());
-        byte[] secret = provider.getKey(keyName);
-        AES128CryptoProvider cryptoProvider = new AES128CryptoProvider(provider, keyName);
-        String encrypted = Base64.encode(cryptoProvider.encrypt("test".getBytes()));
-        String decrypted = new String(cryptoProvider.decrypt(Base64.decode(encrypted)));
-        Assert.assertTrue(Arrays.equals(secret, secretKey.getEncoded()));
-        Assert.assertEquals(decrypted, "test");
+        byte[] storedKey = provider.getKey(keyName);
+        Assert.assertTrue(Arrays.equals(secretKey.getEncoded(), storedKey));
     }
 }

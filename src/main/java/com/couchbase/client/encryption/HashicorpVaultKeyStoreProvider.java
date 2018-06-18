@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.couchbase.client.crypto;
+package com.couchbase.client.encryption;
 
-import com.couchbase.client.crypto.utils.Base64;
+import com.couchbase.client.encryption.utils.Base64;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -36,12 +36,15 @@ import java.nio.charset.Charset;
  * @author Subhashni Balakrishnan
  * @since 0.1.0
  */
-public class HashicorpVaultKeyStoreProvider {
+public class HashicorpVaultKeyStoreProvider implements KeyStoreProvider {
 
     private final String endpoint;
     private final String mount;
     private final String token;
     private ObjectMapper mapper = new ObjectMapper();
+    private String publicKeyName;
+    private String privateKeyName;
+    private String signingKeyName;
 
     /**
      * Creates an instance of vault key provider
@@ -95,8 +98,35 @@ public class HashicorpVaultKeyStoreProvider {
         client.close();
     }
 
-    public void storeKey(String keyName, byte[] publicKey, byte[] privateKey) throws Exception {
-        this.storeKey(keyName + "_public", publicKey);
-        this.storeKey(keyName + "_private", privateKey);
+
+    @Override
+    public String publicKeyName() {
+        return this.publicKeyName;
     }
+
+    @Override
+    public void publicKeyName(String name) {
+        this.publicKeyName = name;
+    }
+
+    @Override
+    public String privateKeyName() {
+        return this.privateKeyName;
+    }
+
+    @Override
+    public void privateKeyName(String name) {
+        this.privateKeyName = name;
+    }
+
+    @Override
+    public String signingKeyName() {
+        return this.signingKeyName;
+    }
+
+    @Override
+    public void signingKeyName(String name) {
+        this.signingKeyName = name;
+    }
+
 }

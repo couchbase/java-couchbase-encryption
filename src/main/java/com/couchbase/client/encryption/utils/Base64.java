@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.couchbase.client.crypto.utils;
+package com.couchbase.client.encryption.utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

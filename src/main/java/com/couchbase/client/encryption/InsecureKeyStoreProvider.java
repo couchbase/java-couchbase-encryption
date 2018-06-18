@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.couchbase.client.crypto;
+package com.couchbase.client.encryption;
 
 import java.util.HashMap;
 
@@ -27,17 +27,47 @@ import java.util.HashMap;
 public class InsecureKeyStoreProvider implements KeyStoreProvider {
 
     private HashMap<String, byte[]> keys = new HashMap<String, byte[]>();
+    private String publicKeyName;
+    private String privateKeyName;
+    private String signingKeyName;
 
+    @Override
     public byte[] getKey(String keyName) {
         return keys.get(keyName);
     }
 
+    @Override
     public void storeKey(String keyName, byte[] secretKey) {
         keys.put(keyName, secretKey);
     }
 
-    public void storeKey(String keyName, byte[] publicKey, byte[] privateKey) {
-        keys.put(keyName + "_public", publicKey);
-        keys.put(keyName + "_private", privateKey);
+    @Override
+    public String publicKeyName() {
+        return this.publicKeyName;
+    }
+
+    @Override
+    public void publicKeyName(String name) {
+        this.publicKeyName = name;
+    }
+
+    @Override
+    public String privateKeyName() {
+        return this.privateKeyName;
+    }
+
+    @Override
+    public void privateKeyName(String name) {
+        this.privateKeyName = name;
+    }
+
+    @Override
+    public String signingKeyName() {
+        return this.signingKeyName;
+    }
+
+    @Override
+    public void signingKeyName(String name) {
+        this.signingKeyName = name;
     }
 }

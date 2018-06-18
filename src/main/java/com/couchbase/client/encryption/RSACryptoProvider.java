@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.couchbase.client.crypto;
+package com.couchbase.client.encryption;
 
 import javax.crypto.Cipher;
 import java.security.KeyFactory;
@@ -23,6 +23,10 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+
+import com.couchbase.client.encryption.errors.CryptoProviderMissingPrivateKeyException;
+import com.couchbase.client.encryption.errors.CryptoProviderMissingPublicKeyException;
+import com.couchbase.client.encryption.errors.CryptoProviderMissingSigningKeyException;
 
 /**
  * RSA encryption provider
@@ -33,18 +37,17 @@ import java.security.spec.X509EncodedKeySpec;
 public class RSACryptoProvider implements CryptoProvider {
 
     private KeyStoreProvider keyStoreProvider;
-    private String keyName;
     private final String SIGNATURE_ALG = "SHA256withRSA";
     private final String CRYPTO_ALG = "RSA";
-    public static final String NAME = "RSA-2048";
+    public static final String ALG = "RSA-2048";
 
     /**
-     * Create an instance of the RSA Cryto pro
+     * Create an instance of the RSA Cryto provider
      *
-     * @param keyName the keyName for the public, private pair
+     * @param provider Keystore provider for the public and private key
      */
-    public RSACryptoProvider(String keyName) {
-        this.keyName = keyName;
+    public RSACryptoProvider(KeyStoreProvider provider) {
+        this.keyStoreProvider = provider;
     }
 
     /**
@@ -61,48 +64,20 @@ public class RSACryptoProvider implements CryptoProvider {
     }
 
     /**
-     * Get the encryption key pair name used
-     *
-     * @return Key name
-     */
-    public String getKeyName() {
-        return this.keyName;
-    }
-
-    /**
-     * Set the encryption key pair to be used
-     *
-     * @param keyName Key name
-     */
-    public void setKeyName(String keyName) {
-        this.keyName = keyName;
-    }
-
-    /**
-     * Encrypts the given data using the key set. Will throw exceptions
-     * if the key store and key name are not set.
+     * Encrypts the given data using the key set.
      *
      * @param data Data to be encrypted
      * @return Encrypted bytes
      */
     public byte[] encrypt(byte[] data) throws Exception {
-        return encrypt(data, this.keyName);
-    }
+        if (this.keyStoreProvider.privateKeyName() == null) {
+            throw new CryptoProviderMissingPrivateKeyException();
+        }
 
-    /**
-     * Encrypts the given data using the key set. Will throw exceptions
-     * if the key store and key name are not set.
-     *
-     * @param data Data to be encrypted
-     * @param keyName Encryption key name
-     * @return Encrypted bytes
-     */
-    public byte[] encrypt(byte[] data, String keyName) throws Exception {
         Cipher cipher = Cipher.getInstance(CRYPTO_ALG);
-        cipher.init(Cipher.ENCRYPT_MODE, getPrivateKey(keyName));
+        cipher.init(Cipher.ENCRYPT_MODE, getPrivateKey(this.keyStoreProvider.privateKeyName()));
         return cipher.doFinal(data);
     }
-
 
     /**
      * Get the initialization vector size
@@ -114,27 +89,18 @@ public class RSACryptoProvider implements CryptoProvider {
     }
 
     /**
-     * Decrypts the given data. Will throw exceptions
-     * if the key store and key name are not set.
+     * Decrypts the given data using the key given.
      *
      * @param encrypted Encrypted data
      * @return Decrypted bytes
      */
     public byte[] decrypt(byte[] encrypted) throws Exception {
-        return decrypt(encrypted, this.keyName);
-    }
+        if (this.keyStoreProvider.publicKeyName() == null) {
+            throw new CryptoProviderMissingPublicKeyException();
+        }
 
-    /**
-     * Decrypts the given data using the key given. Will throw exceptions
-     * if the key store and key name are not set.
-     *
-     * @param encrypted Encrypted data
-     * @param keyName Encryption/Decryption key name
-     * @return Decrypted bytes
-     */
-    public byte[] decrypt(byte[] encrypted, String keyName) throws Exception {
         Cipher cipher = Cipher.getInstance(CRYPTO_ALG);
-        cipher.init(Cipher.DECRYPT_MODE, getPublicKey(keyName));
+        cipher.init(Cipher.DECRYPT_MODE, getPublicKey(this.keyStoreProvider.publicKeyName()));
         return cipher.doFinal(encrypted);
     }
 
@@ -145,19 +111,12 @@ public class RSACryptoProvider implements CryptoProvider {
      * @return signature
      */
     public byte[] getSignature(byte[] message) throws Exception {
-        return getSignature(message, this.keyName);
-    }
+        if (this.keyStoreProvider.signingKeyName() == null) {
+            throw new CryptoProviderMissingSigningKeyException();
+        }
 
-    /**
-     * Get the signature for the integrity check.
-     *
-     * @param message The message to check for correctness
-     * @param keyName The key to be used
-     * @return signature
-     */
-    public byte[] getSignature(byte[] message, String keyName) throws Exception {
         Signature signatureAlg = Signature.getInstance(SIGNATURE_ALG);
-        signatureAlg.initSign(getPrivateKey(keyName));
+        signatureAlg.initSign(getPrivateKey(this.keyStoreProvider.signingKeyName()));
         return signatureAlg.sign();
     }
 
@@ -169,36 +128,29 @@ public class RSACryptoProvider implements CryptoProvider {
      * @return signature
      */
     public boolean verifySignature(byte[] message, byte[] signature) throws Exception {
-        return verifySignature(message, signature, this.keyName);
-    }
+        if (this.keyStoreProvider.signingKeyName() == null) {
+            throw new CryptoProviderMissingSigningKeyException();
+        }
 
-    /**
-     * verify the signature for the integrity check.
-     *
-     * @param message The message to check for correctness
-     * @param signature Signature used for message
-     * @param keyName The key to be used
-     * @return signature
-     */
-    public boolean verifySignature(byte[] message, byte[] signature, String keyName) throws Exception {
         Signature signatureAlg = Signature.getInstance(SIGNATURE_ALG);
-        signatureAlg.initVerify(getPublicKey(keyName));
+        signatureAlg.initVerify(getPublicKey(this.keyStoreProvider.signingKeyName()));
         return signatureAlg.verify(signature);
     }
 
     private RSAPrivateKey getPrivateKey(String keyName) throws Exception {
         KeyFactory keyFactory = KeyFactory.getInstance(CRYPTO_ALG);
-        PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(this.keyStoreProvider.getKey(keyName + "_private"));
+        PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(this.keyStoreProvider.getKey(keyName));
         return (RSAPrivateKey) keyFactory.generatePrivate(privateKeySpec);
     }
 
     private RSAPublicKey getPublicKey(String keyName) throws Exception {
         KeyFactory keyFactory = KeyFactory.getInstance(CRYPTO_ALG);
-        X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(this.keyStoreProvider.getKey(keyName + "_public"));
+        X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(this.keyStoreProvider.getKey(keyName));
         return (RSAPublicKey) keyFactory.generatePublic(publicKeySpec);
     }
 
-    public String getProviderName() {
-        return NAME;
+    @Override
+    public String getProviderAlgorithmName() {
+        return ALG;
     }
 }

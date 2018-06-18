@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.couchbase.client</groupId>
-    <artifactId>encryption-extension</artifactId>
-    <version>0.1.0</version>
+    <artifactId>encryption</artifactId>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>Couchbase Java SDK Encryption Extension</name>
+    <name>Couchbase Java SDK Encryption</name>
     <description>Contains cryptographic algorithms and key store providers to be used with the SDK.</description>
     <url>http://couchbase.com</url>
 
@@ -57,12 +57,12 @@
     </licenses>
 
     <scm>
-        <url>https://github.com/couchbase/couchbase-java-client-crypto-extension</url>
+        <url>https://github.com/couchbase/java-couchbase-encryption</url>
         <connection>
-            scm:git:git://github.com/couchbase/couchbase-java-client-crypto-extension
+            scm:git:git://github.com/couchbase/java-couchbase-encryption
         </connection>
         <developerConnection>
-            scm:git:git://github.com/couchbase/couchbase-java-client-crypto-extension
+            scm:git:git://github.com/couchbase/java-couchbase-encryption
         </developerConnection>
     </scm>
 
@@ -108,7 +108,7 @@
                 </executions>
                 <configuration>
                     <useStandardDocletOptions>true</useStandardDocletOptions>
-                    <windowtitle>Couchbase Java SDK Crypto Extension</windowtitle>
+                    <windowtitle>Java Couchbase Encryption</windowtitle>
                     <doctitle>Couchbase Java SDK (${project.version})</doctitle>
                     <bottom><![CDATA[Copyright &copy; 2018 Couchbase, Inc.]]></bottom>
                 </configuration>

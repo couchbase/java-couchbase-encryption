@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.couchbase.client.crypto;
+package com.couchbase.client.encryption;
 
 /**
  * CryptoProvider interface for cryptographic algorithm provider implementations.
@@ -39,31 +39,6 @@ public interface CryptoProvider {
     void setKeyStoreProvider(KeyStoreProvider provider);
 
     /**
-     * Get the default key name used by the provider
-     *
-     * @return key name
-     */
-    String getKeyName();
-
-    /**
-     * Set the default key name to be used by the provider
-     *
-     * @param keyName key name
-     */
-    void setKeyName(String keyName);
-
-    /**
-     * Encrypts the given data using key given. Will throw exceptions
-     * if the key store and key name are not set.
-     *
-     * @param data Data to be encrypted
-     * @param keyName key name to be used
-     * @return encrypted bytes
-     * @throws Exception on failure
-     */
-    byte[] encrypt(byte[] data, String keyName) throws Exception;
-
-    /**
      * Encrypts the given data. Will throw exceptions if the key store and
      * key name are not set.
      *
@@ -81,17 +56,6 @@ public interface CryptoProvider {
     int getIVSize();
 
     /**
-     * Decrypts the given data using the key given. Will throw exceptions
-     * if the key store and key name are not set.
-     *
-     * @param encrypted Encrypted data
-     * @param keyName key name to be used
-     * @return decrypted bytes
-     * @throws Exception on failure
-     */
-    byte[] decrypt(byte[] encrypted, String keyName) throws Exception;
-
-    /**
      * Decrypts the given data. Will throw exceptions
      * if the key store and key name are not set.
      *
@@ -103,16 +67,6 @@ public interface CryptoProvider {
 
     /**
      * Get the signature for the integrity check using the key given.
-     *
-     * @param message The message to check for correctness
-     * @param keyName key name to be used
-     * @return signature
-     * @throws Exception on failure
-     */
-    byte[] getSignature(byte[] message, String keyName) throws Exception;
-
-    /**
-     * Get the signature for the integrity check.
      *
      * @param message The message to check for correctness
      * @return signature
@@ -131,19 +85,8 @@ public interface CryptoProvider {
     boolean verifySignature(byte[] message, byte[] signature) throws Exception;
 
     /**
-     * verify the signature for the integrity check.
-     *
-     * @param message The message to check for correctness
-     * @param signature Signature used for message
-     * @param keyName HMAC key name
-     * @return True if success
-     * @throws Exception on failure
+     * Get the crypto provider algorithm name.
+     * @return provider algorithm name
      */
-    boolean verifySignature(byte[] message, byte[] signature, String keyName) throws Exception;
-
-    /**
-     * Get the crypto provider name.
-     * @return provider name
-     */
-     String getProviderName();
+     String getProviderAlgorithmName();
 }

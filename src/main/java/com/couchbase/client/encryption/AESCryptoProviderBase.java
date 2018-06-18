@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.couchbase.client.crypto;
+package com.couchbase.client.encryption;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
@@ -22,6 +22,10 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.SecureRandom;
 import java.util.Arrays;
+
+import com.couchbase.client.encryption.errors.CryptoProviderKeySizeException;
+import com.couchbase.client.encryption.errors.CryptoProviderMissingPublicKeyException;
+import com.couchbase.client.encryption.errors.CryptoProviderMissingSigningKeyException;
 
 /**
  * Base class for AES crypto provider
@@ -31,9 +35,6 @@ import java.util.Arrays;
 public abstract class AESCryptoProviderBase implements CryptoProvider {
 
     protected KeyStoreProvider keyStoreProvider;
-    protected String keyName;
-    protected String hmacKeyName;
-    protected int keySize;
     private final int IV_SIZE = 16;
 
     /**
@@ -55,38 +56,6 @@ public abstract class AESCryptoProviderBase implements CryptoProvider {
     }
 
     /**
-     * Get the encryption key name used
-     *
-     * @return Key name
-     */
-    public String getKeyName() {
-        return this.keyName;
-    }
-
-    /**
-     * Set the encryption key to be used
-     *
-     * @param keyName Key name
-     */
-    public void setKeyName(String keyName) {
-        this.keyName = keyName;
-    }
-
-    /**
-     * Get HMAC key used for generating signature to verify data integrity
-     *
-     * @return HMAC key name
-     */
-    public String getHMACKeyName() {return this.hmacKeyName; }
-
-    /**
-     * Set HMAC key to be used for generating signature to verify data integrity
-     *
-     * @param hmacKeyName HMAC key name
-     */
-    public void setHMACKeyName(String hmacKeyName) { this.hmacKeyName = hmacKeyName; }
-
-    /**
      * Encrypts the given data using the key set. Will throw exceptions
      * if the key store and key name are not set.
      *
@@ -94,20 +63,13 @@ public abstract class AESCryptoProviderBase implements CryptoProvider {
      * @return Encrypted bytes
      */
     public byte[] encrypt(byte[] data) throws Exception {
-        return encrypt(data, this.keyName);
-    }
-
-    /**
-     * Encrypts the given data using the key set. Will throw exceptions
-     * if the key store and key name are not set.
-     *
-     * @param data Data to be encrypted
-     * @param keyName Encryption key name
-     * @return Encrypted bytes
-     */
-    public byte[] encrypt(byte[] data, String keyName) throws Exception {
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        SecretKeySpec key = new SecretKeySpec(this.keyStoreProvider.getKey(keyName), "AES");
+
+        if (this.keyStoreProvider.publicKeyName() == null) {
+            throw new CryptoProviderMissingPublicKeyException();
+        }
+
+        SecretKeySpec key = new SecretKeySpec(this.keyStoreProvider.getKey(this.keyStoreProvider.publicKeyName()), "AES");
         checkKeySize(key);
 
         byte[] iv = new byte[IV_SIZE];
@@ -134,26 +96,18 @@ public abstract class AESCryptoProviderBase implements CryptoProvider {
     }
 
     /**
-     * Decrypts the given data. Will throw exceptions
-     * if the key store and key name are not set.
-     *
-     * @param encryptedwithIv Encrypted data with IV
-     * @return Decrypted bytes
-     */
-    public byte[] decrypt(byte[] encryptedwithIv) throws Exception {
-        return decrypt(encryptedwithIv, this.keyName);
-    }
-
-    /**
      * Decrypts the given data using the key given. Will throw exceptions
      * if the key store and key name are not set.
      *
      * @param encryptedwithIv Encrypted data
-     * @param keyName Encryption/Decryption key name
      * @return Decrypted bytes
      */
-    public byte[] decrypt(byte[] encryptedwithIv, String keyName) throws Exception {
-        SecretKeySpec key = new SecretKeySpec(this.keyStoreProvider.getKey(keyName), "AES");
+    public byte[] decrypt(byte[] encryptedwithIv) throws Exception {
+        if (this.keyStoreProvider.publicKeyName() == null) {
+            throw new CryptoProviderMissingPublicKeyException();
+        }
+
+        SecretKeySpec key = new SecretKeySpec(this.keyStoreProvider.getKey(this.keyStoreProvider.publicKeyName()), "AES");
         checkKeySize(key);
         int ivSize = 16;
         byte[] iv = new byte[ivSize];
@@ -175,20 +129,14 @@ public abstract class AESCryptoProviderBase implements CryptoProvider {
      * @param message The message to check for correctness
      * @return signature
      */
+    @Override
     public byte[] getSignature(byte[] message) throws Exception {
-        return getSignature(message, this.hmacKeyName);
-    }
+        if (this.keyStoreProvider.signingKeyName() == null) {
+            throw new CryptoProviderMissingSigningKeyException();
+        }
 
-    /**
-     * Get the signature for the integrity check.
-     *
-     * @param message The message to check for correctness
-     * @param hmacKeyName The HMAC key to be used
-     * @return signature
-     */
-    public byte[] getSignature(byte[] message, String hmacKeyName) throws Exception {
         Mac m = Mac.getInstance("HmacSHA256");
-        SecretKeySpec key = new SecretKeySpec(this.keyStoreProvider.getKey(hmacKeyName), "HMAC");
+        SecretKeySpec key = new SecretKeySpec(this.keyStoreProvider.getKey(this.keyStoreProvider.signingKeyName()), "HMAC");
         m.init(key);
         return m.doFinal(message);
     }
@@ -201,27 +149,17 @@ public abstract class AESCryptoProviderBase implements CryptoProvider {
      * @return signature
      */
     public boolean verifySignature(byte[] message, byte[] signature) throws Exception {
-        return verifySignature(message, signature, this.hmacKeyName);
+        return Arrays.equals(getSignature(message), signature);
     }
 
-    /**
-     * verify the signature for the integrity check.
-     *
-     * @param message The message to check for correctness
-     * @param signature Signature used for message
-     * @param hmacKeyName HMAC key name
-     * @return signature
-     */
-    public boolean verifySignature(byte[] message, byte[] signature, String hmacKeyName) throws Exception {
-        return Arrays.equals(getSignature(message, hmacKeyName), signature);
-    }
+    public abstract String getProviderAlgorithmName();
 
-    public abstract String getProviderName();
+    protected abstract int getKeySize();
 
     private void checkKeySize(SecretKeySpec key) throws Exception {
         int keySize = key.getEncoded().length;
-        if (keySize != this.keySize) {
-            throw new Exception("Invalid key size " + keySize + " for "+ this.getProviderName() +" Algorithm");
+        if (keySize != getKeySize()) {
+            throw new CryptoProviderKeySizeException("Invalid key size " + keySize + " for "+ this.getProviderAlgorithmName() +" Algorithm");
         }
     }
 }
