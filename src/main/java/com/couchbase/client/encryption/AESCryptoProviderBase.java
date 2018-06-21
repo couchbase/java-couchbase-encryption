@@ -153,4 +153,6 @@ public abstract class AESCryptoProviderBase implements CryptoProvider {
             throw new CryptoProviderKeySizeException("Invalid key size " + keySize + " for "+ this.getProviderName() +" Algorithm");
         }
     }
+
+    public abstract boolean checkAlgorithmNameMatch(String name);
 }

@@ -15,7 +15,7 @@ package com.couchbase.client.encryption;
  */
 public class AES128CryptoProvider extends AESCryptoProviderBase {
 
-    public static final String ALG_NAME = "AES-128-CBC-HMAC-SHA256";
+    public static final String ALG_NAME = "AES-128-HMAC-SHA256";
     private int KEY_SIZE = 16;
 
     /**
@@ -33,4 +33,9 @@ public class AES128CryptoProvider extends AESCryptoProviderBase {
 
     @Override
     public String getProviderName() { return ALG_NAME; }
+
+    @Override
+    public boolean checkAlgorithmNameMatch(String name) {
+        return (name.contentEquals(ALG_NAME) || name.contentEquals("AES-128"));
+    }
 }

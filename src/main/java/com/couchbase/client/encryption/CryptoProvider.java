@@ -80,4 +80,12 @@ public interface CryptoProvider {
      * @return provider algorithm name
      */
      String getProviderName();
+
+    /**
+     * Check if the algorithm name is a match
+     *
+     * @param name name to check
+     * @return true if there is a match
+     */
+    boolean checkAlgorithmNameMatch(String name);
 }

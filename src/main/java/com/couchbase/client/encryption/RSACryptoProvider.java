@@ -30,7 +30,7 @@ public class RSACryptoProvider implements CryptoProvider {
 
     private KeyStoreProvider keyStoreProvider;
     private final String CRYPTO_ALG = "RSA/ECB/OAEPWithSHA-1AndMGF1Padding";
-    public static final String ALG = "RSA-2048-OAEP-SHA1";
+    public static final String ALG_NAME = "RSA-2048-OAEP-SHA1";
 
     /**
      * Create an instance of the RSA Cryto provider
@@ -113,6 +113,11 @@ public class RSACryptoProvider implements CryptoProvider {
 
     @Override
     public String getProviderName() {
-        return ALG;
+        return ALG_NAME;
+    }
+
+    @Override
+    public boolean checkAlgorithmNameMatch(String name) {
+        return (name.contentEquals(ALG_NAME) || name.contentEquals("RSA-2048"));
     }
 }
