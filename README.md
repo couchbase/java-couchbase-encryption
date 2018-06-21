@@ -1,4 +1,4 @@
-# Couchbase Java SDK Encryption Extension #
+# Couchbase Java SDK Field Level Encryption #
 
 This project contains the cryptographic algorithms and key store providers which are
 used by the Couchbase Java SDK to provide field level encryption.
@@ -22,7 +22,7 @@ Add maven dependency as
 ```xml
 <dependency>
   <groupId>com.couchbase.client</groupId>
-  <artifactId>encryption-extension</artifactId>
+  <artifactId>encryption</artifactId>
   <version>${version}</version>
 </dependency>
 ```

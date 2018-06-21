@@ -1,17 +1,8 @@
 /*
  * Copyright (c) 2018 Couchbase, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Use of this software is subject to the Couchbase Inc. Enterprise Subscription License Agreement
+ * which may be found at https://www.couchbase.com/ESLA-11132015.
  */
 
 package com.couchbase.client.encryption;
@@ -45,9 +36,7 @@ public class JceksKeyStoreProvider implements KeyStoreProvider {
      * @throws Exception on failure
      */
     public JceksKeyStoreProvider(String keyPassword) throws Exception {
-        this.ks = KeyStore.getInstance("JCEKS");
-        this.ks.load(null, null);
-        this.keyPassword = keyPassword;
+        this(null, null, keyPassword);
     }
 
     /**
@@ -59,6 +48,7 @@ public class JceksKeyStoreProvider implements KeyStoreProvider {
      * @throws Exception on failure
      */
     public JceksKeyStoreProvider(InputStream stream, char[] password, String keyPassword) throws Exception {
+        System.setProperty("jceks.key.serialFilter", "javax.crypto.spec.SecretKeySpec");
         this.ks = KeyStore.getInstance("JCEKS");
         this.ks.load(stream, password);
         this.keyPassword = keyPassword;

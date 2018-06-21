@@ -1,22 +1,14 @@
 /*
  * Copyright (c) 2018 Couchbase, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Use of this software is subject to the Couchbase Inc. Enterprise Subscription License Agreement
+ * which may be found at https://www.couchbase.com/ESLA-11132015.
  */
 
 package com.couchbase.client.encryption;
 
-import com.couchbase.client.encryption.utils.Base64;
+import javax.xml.bind.DatatypeConverter;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -81,7 +73,7 @@ public class HashicorpVaultKeyStoreProvider implements KeyStoreProvider {
         String storedVal = EntityUtils.toString(response.getEntity(), Charset.forName("UTF-8"));
         JsonNode obj = mapper.readTree(storedVal);
         client.close();
-        return Base64.decode(obj.get("data").get("value").toString().replace("\"",""));
+        return DatatypeConverter.parseBase64Binary(obj.get("data").get("value").toString().replace("\"", ""));
     }
 
     public void storeKey(String keyName, byte[] key) throws Exception {
@@ -89,7 +81,7 @@ public class HashicorpVaultKeyStoreProvider implements KeyStoreProvider {
         HttpPost post = new HttpPost(this.endpoint + "/v1/" + this.mount + "/" + keyName);
         post.addHeader("X-Vault-Token",this.token);
         ObjectNode node = mapper.createObjectNode();
-        node.put("value" , Base64.encode(key));
+        node.put("value" , DatatypeConverter.printBase64Binary(key));
         post.setEntity(new StringEntity(node.toString(), ContentType.APPLICATION_JSON));
         CloseableHttpResponse response = client.execute(post);
         if (response.getStatusLine().getStatusCode() != 200 && response.getStatusLine().getStatusCode() != 204) {
