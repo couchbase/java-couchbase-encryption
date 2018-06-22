@@ -14,7 +14,7 @@ import com.couchbase.client.encryption.errors.CryptoProviderAliasNullException;
 import com.couchbase.client.encryption.errors.CryptoProviderNameNotFoundException;
 
 /**
- * Encryption configuration manager set on the environment for encryption/decryption
+ * Encryption configuration manager set on the couchbase environment for encryption/decryption
  *
  * @author Subhashni Balakrishnan
  * @since 1.0.0

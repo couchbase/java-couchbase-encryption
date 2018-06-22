@@ -16,19 +16,13 @@ package com.couchbase.client.encryption.errors;
  */
 public class CryptoProviderSigningFailedException extends Exception {
 
-	public CryptoProviderSigningFailedException() {
-		super();
-	}
+    public CryptoProviderSigningFailedException() { super(); }
 
-	public CryptoProviderSigningFailedException(String message) {
-		super(message);
-	}
+    public CryptoProviderSigningFailedException(String message) { super(message); }
 
-	public CryptoProviderSigningFailedException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public CryptoProviderSigningFailedException(String message, Throwable cause) { super(message, cause); }
 
-	public CryptoProviderSigningFailedException(Throwable cause) {
-		super(cause);
-	}
+    public CryptoProviderSigningFailedException(Throwable cause) {
+        super(cause);
+    }
 }

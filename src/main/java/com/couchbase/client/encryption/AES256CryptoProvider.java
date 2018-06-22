@@ -15,7 +15,7 @@ package com.couchbase.client.encryption;
  */
 public class AES256CryptoProvider extends AESCryptoProviderBase {
 
-    public static final String ALG_NAME = "AES-256-HMAC-SHA256";
+    private static final String ALG_NAME = "AES-256-HMAC-SHA256";
     private int KEY_SIZE = 32;
 
     /**

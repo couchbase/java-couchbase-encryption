@@ -48,10 +48,11 @@ public class JceksKeyStoreProvider implements KeyStoreProvider {
      * @throws Exception on failure
      */
     public JceksKeyStoreProvider(InputStream stream, char[] password, String keyPassword) throws Exception {
-        System.setProperty("jceks.key.serialFilter", "javax.crypto.spec.SecretKeySpec");
         this.ks = KeyStore.getInstance("JCEKS");
         this.ks.load(stream, password);
         this.keyPassword = keyPassword;
+        //required since 1.8_171 http://www.oracle.com/technetwork/java/javase/8u171-relnotes-4308888.html#JDK-8189997
+        System.setProperty("jceks.key.serialFilter", "javax.crypto.spec.SecretKeySpec");
     }
 
     private KeyStore.PasswordProtection getProtection(String keyName) {
