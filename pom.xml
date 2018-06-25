@@ -43,18 +43,19 @@
     </dependencies>
 
 
+    <licenses>
+        <license>
+            <name>Couchbase Inc. Enterprise Subscription License Agreement</name>
+            <url>https://www.couchbase.com/ESLA-11132015</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+
     <organization>
         <name>Couchbase, Inc.</name>
         <url>http://couchbase.com</url>
     </organization>
-
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
 
     <scm>
         <url>https://github.com/couchbase/java-couchbase-encryption</url>
