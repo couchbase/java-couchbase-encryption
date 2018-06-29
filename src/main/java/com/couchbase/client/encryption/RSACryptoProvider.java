@@ -31,6 +31,7 @@ public class RSACryptoProvider implements CryptoProvider {
     private KeyStoreProvider keyStoreProvider;
     private final String CRYPTO_ALG = "RSA/ECB/OAEPWithSHA-1AndMGF1Padding";
     public static final String ALG_NAME = "RSA-2048-OAEP-SHA1";
+    private String alias;
 
     /**
      * Create an instance of the RSA Cryto provider
@@ -82,7 +83,7 @@ public class RSACryptoProvider implements CryptoProvider {
      */
     public byte[] decrypt(byte[] encrypted) throws Exception {
         if (this.keyStoreProvider.privateKeyName() == null) {
-            throw new CryptoProviderMissingPrivateKeyException();
+            throw new CryptoProviderMissingPrivateKeyException("Asymmetric key cryptographic providers require a non-null, empty private key be configured for the alias: " + this.alias);
         }
 
         Cipher cipher = Cipher.getInstance(CRYPTO_ALG);
@@ -119,5 +120,10 @@ public class RSACryptoProvider implements CryptoProvider {
     @Override
     public boolean checkAlgorithmNameMatch(String name) {
         return (name.contentEquals(ALG_NAME) || name.contentEquals("RSA-2048"));
+    }
+
+    @Override
+    public void setAlias(String alias) {
+        this.alias = alias;
     }
 }

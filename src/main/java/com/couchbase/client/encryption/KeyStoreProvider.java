@@ -58,7 +58,7 @@ public interface KeyStoreProvider {
     /**
      * Set the private key name required for an asymmetic cryptographic algorithm
      *
-     * @param name
+     * @param name private key name
      */
     void privateKeyName(String name);
 

@@ -21,13 +21,13 @@ import com.couchbase.client.encryption.errors.CryptoProviderNameNotFoundExceptio
  */
 public class CryptoManager {
 
-    private Map<String, CryptoProvider> cryptoProvider;
+    private Map<String, CryptoProvider> cryptoProviderMap;
 
     /**
      * Creates an instance of Encryption configuration
      */
     public CryptoManager() {
-        this.cryptoProvider = new HashMap<String, CryptoProvider>();
+        this.cryptoProviderMap = new HashMap<String, CryptoProvider>();
     }
 
     /**
@@ -35,24 +35,30 @@ public class CryptoManager {
      *
      * @param name an alias name for the encryption provider
      * @param provider Encryption provider implementation
+     * @throws Exception if the alias name is null or empty
      */
-    public void registerProvider(String name, CryptoProvider provider) {
-        this.cryptoProvider.put(name, provider);
+    public void registerProvider(String name, CryptoProvider provider) throws Exception {
+        if (name == null || name.isEmpty()) {
+            throw new CryptoProviderAliasNullException("Cryptographic providers require a non-null, empty alias be configured.");
+        }
+        this.cryptoProviderMap.put(name, provider);
+        provider.setAlias(name);
     }
 
     /**
      * Get an encryption algorithm provider
-     * @param name an alias name for the encryption provider
      *
+     * @param name an alias name for the encryption provider
      * @return encryption crypto provider instance
+     * @throws Exception if the alias is null or empty or not configured
      */
     public CryptoProvider getProvider(String name) throws Exception {
         if (name == null || name.isEmpty()) {
-            throw new CryptoProviderAliasNullException();
+            throw new CryptoProviderAliasNullException("Cryptographic providers require a non-null, empty alias be configured.");
         }
-        if (!this.cryptoProvider.containsKey(name) || this.cryptoProvider.get(name) == null) {
-            throw new CryptoProviderNameNotFoundException();
+        if (!this.cryptoProviderMap.containsKey(name) || this.cryptoProviderMap.get(name) == null) {
+            throw new CryptoProviderNameNotFoundException("The cryptographic provider could not be found for the alias: " + name);
         }
-        return this.cryptoProvider.get(name);
+        return this.cryptoProviderMap.get(name);
     }
 }

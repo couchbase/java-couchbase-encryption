@@ -88,4 +88,11 @@ public interface CryptoProvider {
      * @return true if there is a match
      */
     boolean checkAlgorithmNameMatch(String name);
+
+    /**
+     * Set the alias name on the provider
+     *
+     * @param alias alias for the provider
+     */
+    void setAlias(String alias);
 }

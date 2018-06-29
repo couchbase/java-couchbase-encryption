@@ -27,6 +27,7 @@ public abstract class AESCryptoProviderBase implements CryptoProvider {
 
     protected KeyStoreProvider keyStoreProvider;
     private final int IV_SIZE = 16;
+    private String alias;
 
     /**
      * Get the key store provider used
@@ -95,7 +96,7 @@ public abstract class AESCryptoProviderBase implements CryptoProvider {
      */
     public byte[] decrypt(byte[] encryptedwithIv) throws Exception {
         if (this.keyStoreProvider.publicKeyName() == null) {
-            throw new CryptoProviderMissingPublicKeyException();
+            throw new CryptoProviderMissingPublicKeyException("Cryptographic providers require a non-null, empty public and key identifier (kid) be configured for the alias: " + this.alias);
         }
 
         SecretKeySpec key = new SecretKeySpec(this.keyStoreProvider.getKey(this.keyStoreProvider.publicKeyName()), "AES");
@@ -123,7 +124,7 @@ public abstract class AESCryptoProviderBase implements CryptoProvider {
     @Override
     public byte[] getSignature(byte[] message) throws Exception {
         if (this.keyStoreProvider.signingKeyName() == null) {
-            throw new CryptoProviderMissingSigningKeyException();
+            throw new CryptoProviderMissingSigningKeyException("The authentication failed while checking the signature of the message payload for the alias: " + this.alias);
         }
 
         Mac m = Mac.getInstance("HmacSHA256");
@@ -150,9 +151,13 @@ public abstract class AESCryptoProviderBase implements CryptoProvider {
     private void checkKeySize(SecretKeySpec key) throws Exception {
         int keySize = key.getEncoded().length;
         if (keySize != getKeySize()) {
-            throw new CryptoProviderKeySizeException("Invalid key size " + keySize + " for "+ this.getProviderName() +" Algorithm");
+            throw new CryptoProviderKeySizeException("Invalid key size " + keySize + " for " + this.getProviderName() + " Algorithm");
         }
     }
 
     public abstract boolean checkAlgorithmNameMatch(String name);
+
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
 }
