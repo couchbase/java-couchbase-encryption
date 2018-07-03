@@ -32,6 +32,9 @@ public class AES128CryptoProvider extends AESCryptoProviderBase {
     }
 
     @Override
+    public String getProviderAlgorithmName() { return ALG_NAME; }
+
+    @Override
     public String getProviderName() { return ALG_NAME; }
 
     @Override

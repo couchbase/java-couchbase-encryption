@@ -76,9 +76,18 @@ public interface CryptoProvider {
     boolean verifySignature(byte[] message, byte[] signature) throws Exception;
 
     /**
-     * Get the crypto provider algorithm name.
+     * Get the crypto provider algorithm name
+     *
      * @return provider algorithm name
      */
+    String getProviderAlgorithmName();
+
+    /**
+     * Get the crypto provider algorithm name, not the alias used for registering
+     *
+     * @return provider algorithm name
+     */
+     @Deprecated
      String getProviderName();
 
     /**

@@ -113,6 +113,9 @@ public class RSACryptoProvider implements CryptoProvider {
     }
 
     @Override
+    public String getProviderAlgorithmName() { return ALG_NAME; }
+
+    @Override
     public String getProviderName() {
         return ALG_NAME;
     }

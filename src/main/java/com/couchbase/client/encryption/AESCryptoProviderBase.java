@@ -151,7 +151,7 @@ public abstract class AESCryptoProviderBase implements CryptoProvider {
     private void checkKeySize(SecretKeySpec key) throws Exception {
         int keySize = key.getEncoded().length;
         if (keySize != getKeySize()) {
-            throw new CryptoProviderKeySizeException("Invalid key size " + keySize + " for " + this.getProviderName() + " Algorithm");
+            throw new CryptoProviderKeySizeException("Invalid key size " + keySize + " for " + this.getProviderAlgorithmName() + " Algorithm");
         }
     }
 
