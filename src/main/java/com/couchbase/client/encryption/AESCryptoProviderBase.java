@@ -15,7 +15,7 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 
 import com.couchbase.client.encryption.errors.CryptoProviderKeySizeException;
-import com.couchbase.client.encryption.errors.CryptoProviderMissingPublicKeyException;
+import com.couchbase.client.encryption.errors.CryptoProviderNoPublicKeyException;
 import com.couchbase.client.encryption.errors.CryptoProviderMissingSigningKeyException;
 
 /**
@@ -58,7 +58,7 @@ public abstract class AESCryptoProviderBase implements CryptoProvider {
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 
         if (this.keyStoreProvider.publicKeyName() == null) {
-            throw new CryptoProviderMissingPublicKeyException();
+            throw new CryptoProviderNoPublicKeyException();
         }
 
         SecretKeySpec key = new SecretKeySpec(this.keyStoreProvider.getKey(this.keyStoreProvider.publicKeyName()), "AES");
@@ -96,7 +96,7 @@ public abstract class AESCryptoProviderBase implements CryptoProvider {
      */
     public byte[] decrypt(byte[] encryptedwithIv) throws Exception {
         if (this.keyStoreProvider.publicKeyName() == null) {
-            throw new CryptoProviderMissingPublicKeyException("Cryptographic providers require a non-null, empty public and key identifier (kid) be configured for the alias: " + this.alias);
+            throw new CryptoProviderNoPublicKeyException("Cryptographic providers require a non-null, empty public and key identifier (kid) be configured for the alias: " + this.alias);
         }
 
         SecretKeySpec key = new SecretKeySpec(this.keyStoreProvider.getKey(this.keyStoreProvider.publicKeyName()), "AES");

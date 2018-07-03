@@ -18,7 +18,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 import com.couchbase.client.encryption.errors.CryptoProviderMissingPrivateKeyException;
-import com.couchbase.client.encryption.errors.CryptoProviderMissingPublicKeyException;
+import com.couchbase.client.encryption.errors.CryptoProviderNoPublicKeyException;
 
 /**
  * RSA encryption provider
@@ -63,7 +63,7 @@ public class RSACryptoProvider implements CryptoProvider {
      */
     public byte[] encrypt(byte[] data) throws Exception {
         if (this.keyStoreProvider.publicKeyName() == null) {
-            throw new CryptoProviderMissingPublicKeyException();
+            throw new CryptoProviderNoPublicKeyException();
         }
 
         Cipher cipher = Cipher.getInstance(CRYPTO_ALG);
