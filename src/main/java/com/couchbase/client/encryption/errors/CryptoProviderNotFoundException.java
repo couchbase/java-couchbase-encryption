@@ -8,27 +8,27 @@
 package com.couchbase.client.encryption.errors;
 
 /**
- * CryptoProviderNameNotFoundException is thrown when the provider name is
+ * CryptoProviderNotFoundException is thrown when the provider is
  * not registered on the Crypto manager.
  *
  * @author Subhashni Balakrishnan
  * @since 1.0.0
  */
-public class CryptoProviderNameNotFoundException extends Exception {
+public class CryptoProviderNotFoundException extends Exception {
 
-    public CryptoProviderNameNotFoundException() {
+    public CryptoProviderNotFoundException() {
         super();
     }
 
-    public CryptoProviderNameNotFoundException(String message) {
+    public CryptoProviderNotFoundException(String message) {
         super(message);
     }
 
-    public CryptoProviderNameNotFoundException(String message, Throwable cause) {
+    public CryptoProviderNotFoundException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public CryptoProviderNameNotFoundException(Throwable cause) {
+    public CryptoProviderNotFoundException(Throwable cause) {
         super(cause);
     }
 }

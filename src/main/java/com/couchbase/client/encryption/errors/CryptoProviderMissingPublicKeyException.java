@@ -8,27 +8,27 @@
 package com.couchbase.client.encryption.errors;
 
 /**
- * CryptoProviderNoPublicKeyException is thrown when the public key is
+ * CryptoProviderMissingPublicKeyException is thrown when the public key is
  * not set on the Crypto provider.
  *
  * @author Subhashni Balakrishnan
  * @since 1.0.0
  */
-public class CryptoProviderNoPublicKeyException extends Exception {
+public class CryptoProviderMissingPublicKeyException extends Exception {
 
-    public CryptoProviderNoPublicKeyException() {
+    public CryptoProviderMissingPublicKeyException() {
         super();
     }
 
-    public CryptoProviderNoPublicKeyException(String message) {
+    public CryptoProviderMissingPublicKeyException(String message) {
         super(message);
     }
 
-    public CryptoProviderNoPublicKeyException(String message, Throwable cause) {
+    public CryptoProviderMissingPublicKeyException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public CryptoProviderNoPublicKeyException(Throwable cause) {
+    public CryptoProviderMissingPublicKeyException(Throwable cause) {
         super(cause);
     }
 }

@@ -11,7 +11,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.couchbase.client.encryption.errors.CryptoProviderAliasNullException;
-import com.couchbase.client.encryption.errors.CryptoProviderNameNotFoundException;
+import com.couchbase.client.encryption.errors.CryptoProviderMissingPublicKeyException;
+import com.couchbase.client.encryption.errors.CryptoProviderNotFoundException;
+import com.couchbase.client.encryption.errors.CryptoProviderSigningFailedException;
 
 /**
  * Encryption configuration manager set on the couchbase environment for encryption/decryption
@@ -57,8 +59,24 @@ public class CryptoManager {
             throw new CryptoProviderAliasNullException("Cryptographic providers require a non-null, empty alias be configured.");
         }
         if (!this.cryptoProviderMap.containsKey(name) || this.cryptoProviderMap.get(name) == null) {
-            throw new CryptoProviderNameNotFoundException("The cryptographic provider could not be found for the alias: " + name);
+            throw new CryptoProviderNotFoundException("The cryptographic provider could not be found for the alias: " + name);
         }
         return this.cryptoProviderMap.get(name);
+  }
+
+    /**
+     * Private interface to workaround eager loading of exception classes in JVM
+     * throws the required public key missing exception
+     */
+    public void throwMissingPublicKeyEx(String alias) throws Exception {
+        throw new CryptoProviderMissingPublicKeyException("Cryptographic providers require a non-null, empty public and key identifier (kid) be configured for the alias: " + alias);
+    }
+
+    /**
+     * Private interface to workaround eager loading of exception classes in JVM
+     * throws the required Signing failed exception
+     */
+    public void throwSigningFailedEx(String alias) throws Exception {
+        throw new CryptoProviderSigningFailedException("The authentication failed while checking the signature of the message payload for the alias: " + alias);
     }
 }
