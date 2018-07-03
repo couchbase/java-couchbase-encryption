@@ -67,6 +67,9 @@ public class CryptoManager {
     /**
      * Private interface to workaround eager loading of exception classes in JVM
      * throws the required public key missing exception
+     *
+     * @param alias the alias name for the provider
+     * @throws Exception always
      */
     public void throwMissingPublicKeyEx(String alias) throws Exception {
         throw new CryptoProviderMissingPublicKeyException("Cryptographic providers require a non-null, empty public and key identifier (kid) be configured for the alias: " + alias);
@@ -75,6 +78,9 @@ public class CryptoManager {
     /**
      * Private interface to workaround eager loading of exception classes in JVM
      * throws the required Signing failed exception
+     *
+     * @param alias the alias name for the provider
+     * @throws Exception always
      */
     public void throwSigningFailedEx(String alias) throws Exception {
         throw new CryptoProviderSigningFailedException("The authentication failed while checking the signature of the message payload for the alias: " + alias);

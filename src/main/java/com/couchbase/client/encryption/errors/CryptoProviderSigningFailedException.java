@@ -9,7 +9,7 @@ package com.couchbase.client.encryption.errors;
 
 /**
  * CryptoProviderSigningFailedException is thrown when the crypto provider
- * is not able to sign
+ * is not able to sign/verify
  *
  * @author Subhashni Balakrishnan
  * @since 1.0.0
