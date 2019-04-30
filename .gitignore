@@ -1,2 +1,12 @@
-target/*
+# macOS
 .DS_STORE
+
+# Maven
+target/
+
+# IntelliJ
+.idea/
+out/
+*.iml
+*.ipr
+*.iws
