@@ -14,7 +14,7 @@
     <url>http://couchbase.com</url>
 
     <properties>
-        <java-compat.version>1.8</java-compat.version>
+        <java-compat.version>1.7</java-compat.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
