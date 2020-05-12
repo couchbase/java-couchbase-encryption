@@ -6,17 +6,19 @@
 
     <groupId>com.couchbase.client</groupId>
     <artifactId>encryption</artifactId>
-    <version>2.0.1</version>
+    <version>3.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Couchbase Java SDK Encryption</name>
-    <description>Contains cryptographic algorithms and key store providers to be used with the SDK.</description>
-    <url>http://couchbase.com</url>
+    <description>Contains cryptographic algorithms and keyrings for use with the SDK.</description>
+    <url>https://www.couchbase.com</url>
 
     <properties>
-        <java-compat.version>1.7</java-compat.version>
+        <java-compat.version>1.8</java-compat.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <junit.version>5.6.2</junit.version>
 
         <!-- Don't sign artifacts unless the 'stage' or 'release' profile is active -->
         <gpg.skip>true</gpg.skip>
@@ -29,26 +31,53 @@
         <!-- Required Dependencies -->
         <dependency>
             <groupId>com.couchbase.client</groupId>
-            <artifactId>java-client</artifactId>
-            <version>2.7.6</version>
+            <artifactId>core-io</artifactId>
+            <version>2.1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.7.9.3</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.30</version>
         </dependency>
+
+        <!-- Shaded Dependencies -->
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+            <version>2.8.1</version>
+        </dependency>
+
         <!-- Optional Dependencies -->
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.3.3</version>
+            <groupId>org.springframework.vault</groupId>
+            <artifactId>spring-vault-core</artifactId>
+            <version>2.2.2.RELEASE</version>
             <optional>true</optional>
         </dependency>
+
         <!-- Test Dependencies -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>2.13.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -56,8 +85,8 @@
 
     <licenses>
         <license>
-            <name>Couchbase Inc. Enterprise Subscription License Agreement</name>
-            <url>https://www.couchbase.com/ESLA-11132015</url>
+            <name>Couchbase Inc. Enterprise Subscription License Agreement v7</name>
+            <url>https://www.couchbase.com/ESLA01162020</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -85,9 +114,9 @@
 
     <developers>
         <developer>
-            <id>subalakr</id>
-            <name>Subhashni Balakrishnan</name>
-            <email>subhashni@couchbase.com</email>
+            <id>dnault</id>
+            <name>David Nault</name>
+            <email>david.nault@couchbase.com</email>
         </developer>
     </developers>
 
@@ -109,7 +138,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.3</version>
+                <version>2.10.4</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -123,13 +152,14 @@
                     <windowtitle>Java Couchbase Encryption</windowtitle>
                     <doctitle>Couchbase Java SDK (${project.version})</doctitle>
                     <bottom><![CDATA[Copyright &copy; 2018 Couchbase, Inc.]]></bottom>
+                    <additionalparam>-Xdoclint:none</additionalparam>
                 </configuration>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
+                <version>3.8.1</version>
                 <configuration>
                     <source>${java-compat.version}</source>
                     <target>${java-compat.version}</target>
@@ -160,7 +190,45 @@
                     <autoReleaseAfterClose>${autoReleaseAfterClose}</autoReleaseAfterClose>
                 </configuration>
             </plugin>
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.2</version>
+                <configuration>
+                    <artifactSet>
+                        <includes>
+                            <include>com.github.ben-manes.caffeine:*</include>
+                            <!-- transitive dependencies of Caffeine -->
+                            <include>org.checkerframework:*</include>
+                            <include>com.google.errorprone:*</include>
+                        </includes>
+                    </artifactSet>
+                    <relocations>
+                        <relocation>
+                            <pattern>com.github.benmanes.caffeine</pattern>
+                            <shadedPattern>com.couchbase.client.encryption.deps.com.github.benmanes.caffeine</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.checkerframework</pattern>
+                            <shadedPattern>com.couchbase.client.encryption.deps.org.checkerframework</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.google.errorprone</pattern>
+                            <shadedPattern>com.couchbase.client.encryption.deps.com.google.errorprone</shadedPattern>
+                        </relocation>
+                    </relocations>
+                    <createSourcesJar>true</createSourcesJar>
+                    <shadeSourcesContent>true</shadeSourcesContent>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
