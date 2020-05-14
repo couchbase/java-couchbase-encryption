@@ -14,7 +14,6 @@ import com.couchbase.client.encryption.errors.InvalidKeySizeException;
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
@@ -113,38 +112,42 @@ public class AeadAes256CbcHmacSha512Cipher {
   public byte[] encrypt(byte[] key, byte[] plaintext, byte[] associatedData) throws Exception {
     checkKeyLength(key);
 
-    final byte[] macKey = Arrays.copyOfRange(key, 0, 32);
-    final byte[] encKey = Arrays.copyOfRange(key, 32, 64);
+    try (Zeroizer zeroizer = new Zeroizer()) {
+      final byte[] macKey = zeroizer.add(Arrays.copyOfRange(key, 0, 32));
+      final byte[] encKey = zeroizer.add(Arrays.copyOfRange(key, 32, 64));
 
-    final byte[] enc = encryptAesCbcPkcs7(encKey, plaintext);
-    final byte[] associatedDataLengthInBits = longToBytes(lengthInBits(associatedData));
-    final byte[] mac = hmacSha512(macKey, associatedData, enc, associatedDataLengthInBits);
-    final byte[] authTag = truncate(mac, AUTH_TAG_LEN);
+      final byte[] enc = encryptAesCbcPkcs7(encKey, plaintext);
+      final byte[] associatedDataLengthInBits = longToBytes(lengthInBits(associatedData));
+      final byte[] mac = zeroizer.add(hmacSha512(macKey, associatedData, enc, associatedDataLengthInBits));
+      final byte[] authTag = truncate(mac, AUTH_TAG_LEN);
 
-    return concat(enc, authTag);
+      return concat(enc, authTag);
+    }
   }
 
   public byte[] decrypt(byte[] key, byte[] ciphertext, byte[] associatedData) throws Exception {
     checkKeyLength(key);
 
-    final byte[] macKey = Arrays.copyOfRange(key, 0, 32);
-    final byte[] encKey = Arrays.copyOfRange(key, 32, 64);
+    try (Zeroizer zeroizer = new Zeroizer()) {
+      final byte[] macKey = zeroizer.add(Arrays.copyOfRange(key, 0, 32));
+      final byte[] encKey = zeroizer.add(Arrays.copyOfRange(key, 32, 64));
 
-    final int authTagOffset = ciphertext.length - AUTH_TAG_LEN;
-    final byte[] enc = Arrays.copyOfRange(ciphertext, 0, authTagOffset);
-    final byte[] authTag = Arrays.copyOfRange(ciphertext, authTagOffset, authTagOffset + AUTH_TAG_LEN);
+      final int authTagOffset = ciphertext.length - AUTH_TAG_LEN;
+      final byte[] enc = Arrays.copyOfRange(ciphertext, 0, authTagOffset);
+      final byte[] authTag = Arrays.copyOfRange(ciphertext, authTagOffset, authTagOffset + AUTH_TAG_LEN);
 
-    final byte[] associatedDataLengthInBits = longToBytes(lengthInBits(associatedData));
-    final byte[] computedMac = hmacSha512(macKey, associatedData, enc, associatedDataLengthInBits);
-    final byte[] computedAuthTag = truncate(computedMac, AUTH_TAG_LEN);
+      final byte[] associatedDataLengthInBits = longToBytes(lengthInBits(associatedData));
+      final byte[] computedMac = zeroizer.add(hmacSha512(macKey, associatedData, enc, associatedDataLengthInBits));
+      final byte[] computedAuthTag = truncate(computedMac, AUTH_TAG_LEN);
 
-    // time-constant comparison (doesn't bail out at first mismatch)
-    if (!MessageDigest.isEqual(authTag, computedAuthTag)) {
-      throw new InvalidCiphertextException(
-          "Failed to authenticate the ciphertext and associated data.");
+      // time-constant comparison (doesn't bail out at first mismatch)
+      if (!MessageDigest.isEqual(authTag, computedAuthTag)) {
+        throw new InvalidCiphertextException(
+            "Failed to authenticate the ciphertext and associated data.");
+      }
+
+      return decryptAesCbcPkcs7(encKey, enc);
     }
-
-    return decryptAesCbcPkcs7(encKey, enc);
   }
 
   private static void checkKeyLength(byte[] key) {
@@ -158,25 +161,35 @@ public class AeadAes256CbcHmacSha512Cipher {
     secureRandom.nextBytes(iv);
 
     final Cipher cipher = newAesCscPkcs7();
-    cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key, "AES"), new IvParameterSpec(iv));
-    final byte[] ciphertext = cipher.doFinal(plaintext);
-    return concat(iv, ciphertext);
+    final IvParameterSpec ivSpec = new IvParameterSpec(iv);
+
+    try (ZeroizableSecretKey secretKey = new ZeroizableSecretKey(key, "AES")) {
+      cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivSpec);
+      final byte[] ciphertext = cipher.doFinal(plaintext);
+      return concat(iv, ciphertext);
+    }
   }
 
   private byte[] decryptAesCbcPkcs7(byte[] key, byte[] ciphertext) throws GeneralSecurityException {
     final Cipher cipher = newAesCscPkcs7();
     final IvParameterSpec iv = new IvParameterSpec(ciphertext, 0, IV_LEN);
-    cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(key, "AES"), iv);
-    return cipher.doFinal(ciphertext, IV_LEN, ciphertext.length - IV_LEN);
+
+    try (ZeroizableSecretKey secretKey = new ZeroizableSecretKey(key, "AES")) {
+      cipher.init(Cipher.DECRYPT_MODE, secretKey, iv);
+      return cipher.doFinal(ciphertext, IV_LEN, ciphertext.length - IV_LEN);
+    }
   }
 
   private byte[] hmacSha512(byte[] key, byte[]... authenticateMe) throws GeneralSecurityException {
     final Mac mac = newHmacSha512();
-    mac.init(new SecretKeySpec(key, "HMAC"));
-    for (byte[] bytes : authenticateMe) {
-      mac.update(bytes);
+
+    try (ZeroizableSecretKey secretKey = new ZeroizableSecretKey(key, "HMAC")) {
+      mac.init(secretKey);
+      for (byte[] bytes : authenticateMe) {
+        mac.update(bytes);
+      }
+      return mac.doFinal();
     }
-    return mac.doFinal();
   }
 
   private Cipher newAesCscPkcs7() {

@@ -8,6 +8,8 @@
 package com.couchbase.client.encryption;
 
 import com.couchbase.client.encryption.errors.CryptoKeyNotFoundException;
+import com.couchbase.client.encryption.internal.KeyImpl;
+import com.couchbase.client.encryption.internal.Zeroizer;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
@@ -50,33 +52,32 @@ import static java.util.Objects.requireNonNull;
 public interface Keyring {
 
   /**
-   * @implNote This class makes defensive copies of the byte array in order
-   * to guarantee immutability, which is important since keys may be cached.
+   * An encryption key.
+   * <p>
+   * Create new instances by calling {@link #create(String, byte[])}.
    */
-  class Key {
-    private final String id;
-    private final byte[] bytes;
-
-    public Key(String id, byte[] bytes) {
-      this.id = requireNonNull(id);
-      this.bytes = bytes.clone();
+  interface Key {
+    /**
+     * Creates a new key with the given ID and material,
+     * then zeroizes the given material.
+     */
+    static Key create(String id, byte[] material) {
+      try (Zeroizer zeroizer = new Zeroizer()) {
+        return new KeyImpl(id, zeroizer.add(material));
+      }
     }
 
-    public String id() {
-      return id;
-    }
+    /**
+     * Returns the fully-qualified name of this key.
+     */
+    String id();
 
-    public byte[] bytes() {
-      return bytes.clone();
-    }
-
-    @Override
-    public String toString() {
-      return "Key{" +
-          "id='" + id + '\'' +
-          ", length=" + bytes.length +
-          '}';
-    }
+    /**
+     * Returns a copy of the key material.
+     * <p>
+     * Caller is responsible for zeroizing the returned byte array.
+     */
+    byte[] bytes();
   }
 
   /**
@@ -234,7 +235,7 @@ public interface Keyring {
    */
   static ListableKeyring fromMap(Map<String, byte[]> keyNameToBytes) {
     final Map<String, Key> nameToKey = new HashMap<>();
-    keyNameToBytes.forEach((k, v) -> nameToKey.put(k, new Key(k, v)));
+    keyNameToBytes.forEach((k, v) -> nameToKey.put(k, Key.create(k, v)));
 
     return new ListableKeyring() {
       @Override

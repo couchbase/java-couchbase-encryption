@@ -41,6 +41,6 @@ public class EnvironmentVariableKeyring implements Keyring {
   public Optional<Key> get(String keyId) {
     final String varName = keyNameToEnvironmentVariableName.apply(keyId);
     return Optional.ofNullable(System.getenv(varName))
-        .map(value -> new Key(keyId, Base64.getMimeDecoder().decode(value)));
+        .map(value -> Key.create(keyId, Base64.getMimeDecoder().decode(value)));
   }
 }

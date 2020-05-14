@@ -18,7 +18,6 @@ import com.couchbase.client.encryption.errors.InvalidKeySizeException;
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.util.Optional;
@@ -108,24 +107,31 @@ public class LegacyAesDecrypter implements Decrypter {
       throw new InvalidCiphertextException("Signature does not match.");
     }
 
-    final SecretKeySpec keySpec = getAesKeySpec(kid);
-    final IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
-
-    final Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-    cipher.init(Cipher.DECRYPT_MODE, keySpec, ivParameterSpec);
-    return cipher.doFinal(ciphertext);
+    try (ZeroizableSecretKey key = getAesKey(kid)) {
+      final IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+      final Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+      cipher.init(Cipher.DECRYPT_MODE, key, ivParameterSpec);
+      return cipher.doFinal(ciphertext);
+    }
   }
 
-  private SecretKeySpec getAesKeySpec(String keyName) {
-    final byte[] keyBytes = keyring.getOrThrow(keyName).bytes();
-    final SecretKeySpec keySpec = new SecretKeySpec(keyBytes, "AES");
-
-    final int keySize = keySpec.getEncoded().length;
-    if (keySize != getKeySize()) {
-      throw new InvalidKeySizeException(
-          algorithm() + " requires key with " + getKeySize() + " bytes but key '" + keyName + "' has " + keySize + " bytes.");
+  private ZeroizableSecretKey getKey(String keyId, String algorithm) {
+    try (Zeroizer zeroizer = new Zeroizer()) {
+      final byte[] keyBytes = zeroizer.add(keyring.getOrThrow(keyId).bytes());
+      return new ZeroizableSecretKey(keyBytes, algorithm);
     }
-    return keySpec;
+  }
+
+  private ZeroizableSecretKey getAesKey(String keyName) {
+    final ZeroizableSecretKey key = getKey(keyName, "AES");
+
+    final int actualSize = key.size();
+    if (actualSize != getKeySize()) {
+      key.destroy();
+      throw new InvalidKeySizeException(
+          algorithm() + " requires key with " + getKeySize() + " bytes but key '" + keyName + "' has " + actualSize + " bytes.");
+    }
+    return key;
   }
 
   private String getSigningKeyName(String encryptionKeyName) {
@@ -134,15 +140,13 @@ public class LegacyAesDecrypter implements Decrypter {
   }
 
   private byte[] sign(String signingKeyName, byte[]... signMe) throws Exception {
-    final byte[] keyBytes = keyring.getOrThrow(signingKeyName).bytes();
-    final SecretKeySpec key = new SecretKeySpec(keyBytes, "HMAC");
-    final Mac mac = Mac.getInstance("HmacSHA256");
-    mac.init(key);
-
-    for (byte[] array : signMe) {
-      mac.update(array);
+    try (ZeroizableSecretKey key = getKey(signingKeyName, "HMAC")) {
+      final Mac mac = Mac.getInstance("HmacSHA256");
+      mac.init(key);
+      for (byte[] array : signMe) {
+        mac.update(array);
+      }
+      return mac.doFinal();
     }
-
-    return mac.doFinal();
   }
 }

@@ -91,7 +91,7 @@ public class KeyStoreKeyring implements ListableKeyring {
         }
 
         byte[] keyBytes = ((KeyStore.SecretKeyEntry) entry).getSecretKey().getEncoded();
-        aliasToKey.put(alias, new Key(alias, keyBytes));
+        aliasToKey.put(alias, Key.create(alias, keyBytes));
 
       } catch (Exception e) {
         log.warn("Ignoring key '{}' because it could not be retrieved (wrong password?)", alias, e);

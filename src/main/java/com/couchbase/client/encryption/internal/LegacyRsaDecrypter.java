@@ -60,10 +60,12 @@ public class LegacyRsaDecrypter implements Decrypter {
   }
 
   private RSAPrivateKey getPrivateKey(String publicKeyName) throws Exception {
-    String privateKeyName = getPrivateKeyName(publicKeyName);
-    byte[] keyBytes = keyring.getOrThrow(privateKeyName).bytes();
-    KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-    PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(keyBytes);
-    return (RSAPrivateKey) keyFactory.generatePrivate(privateKeySpec);
+    try (Zeroizer zeroizer = new Zeroizer()) {
+      String privateKeyName = getPrivateKeyName(publicKeyName);
+      byte[] keyBytes = zeroizer.add(keyring.getOrThrow(privateKeyName).bytes());
+      KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+      PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(keyBytes);
+      return (RSAPrivateKey) keyFactory.generatePrivate(privateKeySpec);
+    }
   }
 }

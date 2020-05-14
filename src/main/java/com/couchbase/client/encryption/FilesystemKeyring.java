@@ -8,6 +8,7 @@
 package com.couchbase.client.encryption;
 
 import com.couchbase.client.core.deps.io.netty.buffer.ByteBufUtil;
+import com.couchbase.client.encryption.internal.Zeroizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,9 +78,9 @@ public class FilesystemKeyring implements ListableKeyring {
   public Optional<Key> get(String keyId) {
     final Path keyFile = basedir.resolve(keyId);
 
-    try {
-      final byte[] fileBytes = Files.readAllBytes(keyFile);
-      return Optional.of(new Key(keyId, format.decode(fileBytes)));
+    try (Zeroizer zeroizer = new Zeroizer()) {
+      final byte[] fileBytes = zeroizer.add(Files.readAllBytes(keyFile));
+      return Optional.of(Key.create(keyId, format.decode(fileBytes)));
 
     } catch (FileNotFoundException | NoSuchFileException e) {
       log.debug("Failed to get key '{}'", keyId, e);

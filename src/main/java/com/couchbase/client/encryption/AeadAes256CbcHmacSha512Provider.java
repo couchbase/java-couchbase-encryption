@@ -8,6 +8,7 @@
 package com.couchbase.client.encryption;
 
 import com.couchbase.client.encryption.internal.AeadAes256CbcHmacSha512Cipher;
+import com.couchbase.client.encryption.internal.Zeroizer;
 
 import java.security.Provider;
 import java.security.SecureRandom;
@@ -109,11 +110,13 @@ public class AeadAes256CbcHmacSha512Provider {
    */
   public Encrypter encrypterForKey(String keyName) {
     return plaintext -> {
-      final Keyring.Key key = keyring.getOrThrow(keyName);
-      return EncryptionResult.forAlgorithm(ALGORITHM)
-          .put("kid", key.id())
-          .put("ciphertext", cipher.encrypt(
-              key.bytes(), plaintext, NO_ASSOCIATED_DATA));
+      try (Zeroizer zeroizer = new Zeroizer()) {
+        final Keyring.Key key = keyring.getOrThrow(keyName);
+        return EncryptionResult.forAlgorithm(ALGORITHM)
+            .put("kid", key.id())
+            .put("ciphertext", cipher.encrypt(
+                zeroizer.add(key.bytes()), plaintext, NO_ASSOCIATED_DATA));
+      }
     };
   }
 
@@ -129,11 +132,11 @@ public class AeadAes256CbcHmacSha512Provider {
 
       @Override
       public byte[] decrypt(EncryptionResult encrypted) throws Exception {
-        Keyring.Key key = keyring.getOrThrow(encrypted.getString("kid"));
-        return cipher.decrypt(key.bytes(), encrypted.getBytes("ciphertext"), NO_ASSOCIATED_DATA);
+        try (Zeroizer zeroizer = new Zeroizer()) {
+          final Keyring.Key key = keyring.getOrThrow(encrypted.getString("kid"));
+          return cipher.decrypt(zeroizer.add(key.bytes()), encrypted.getBytes("ciphertext"), NO_ASSOCIATED_DATA);
+        }
       }
     };
   }
-
-
 }
