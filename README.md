@@ -171,10 +171,11 @@ write encrypted field values of a `JsonObject`.
 
 ```java
 Collection collection = cluster.bucket("myBucket").defaultCollection();
-JsonObjectCrypto crypto = collection.environment().jsonObjectCrypto();
 
 JsonObject document = JsonObject.create();
-crypto.put(document, "locationOfBuriedTreasure", "Between palm trees");
+JsonObjectCrypto crypto = document.crypto(collection);
+
+crypto.put("locationOfBuriedTreasure", "Between palm trees");
 
 // This displays the encrypted form of the field
 System.out.println(document);
@@ -182,5 +183,6 @@ System.out.println(document);
 collection.upsert("treasureMap", document);
 
 JsonObject readItBack = collection.get("treasureMap").contentAsObject();
-System.out.println(crypto.getString(readItBack, "locationOfBuriedTreasure"));
+JsonObjectCrypto readItBackCrypto = crypto.withObject(readItBack);
+System.out.println(readItBackCrypto.getString("locationOfBuriedTreasure"));
 ```
