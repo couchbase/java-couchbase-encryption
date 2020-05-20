@@ -23,7 +23,7 @@ _Use of this software is subject to the
 To reduce the footprint of this library, some of its dependencies
 are optional. Using certain features requires adding additional dependencies
 to your project.
- 
+
 HashiCorp Vault Transit integration requires [Spring Vault](https://docs.spring.io/spring-vault/docs/current/reference/html/):
 
 ```xml
@@ -65,7 +65,7 @@ Cluster cluster = Cluster.connect("localhost",
 ## Usage
 
 Two modes of operation are available: transparent encryption/decryption
-during Jackson data binding, and manual field editing using `JsonObjectCrypto`. 
+during Jackson data binding, and manual field editing using `JsonObjectCrypto`.
 
 ### Data Binding
 
@@ -113,7 +113,7 @@ is something like:
 
 ```json
 {
-  "__crypt_replicant": {
+  "encrypted$replicant": {
     "alg": "AEAD_AES_256_CBC_HMAC_SHA512",
     "ciphertext": "xwcxyUyZ.....",
     "kid": "myKey"

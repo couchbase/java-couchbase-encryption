@@ -87,7 +87,7 @@ public class DefaultCryptoManager implements CryptoManager {
      * {@code RsaCryptoProvider} which is now obsolete.
      * <p>
      * There is no need to call this method unless you are upgrading
-     * from from version 2.x of this library and have data encrypted
+     * from version 2.x of this library and have data encrypted
      * by the obsolete RSA provider.
      *
      * @param publicKeyNameToPrivateKeyName A function that when given the name of
@@ -102,6 +102,13 @@ public class DefaultCryptoManager implements CryptoManager {
     /**
      * Specify the string to prepend to a JSON Object's field name to indicate the field
      * holds an encrypted value.
+     * <p>
+     * There is usually no need to call this method unless you are upgrading
+     * from version 2.x of this library, in which case you should
+     * set the encrypted field name prefix to {@code "__crypt_"}.
+     * (The default value changed in version 3.0 to avoid conflicts with
+     * Couchbase Sync Gateway which does not allow field names to start
+     * with an underscore.)
      * <p>
      * Optional. If this method is not called, the standard prefix
      * {@value #DEFAULT_ENCRYPTED_FIELD_NAME_PREFIX} is used.
