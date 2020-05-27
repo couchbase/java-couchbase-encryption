@@ -69,12 +69,12 @@ during Jackson data binding, and manual field editing using `JsonObjectCrypto`.
 
 ### Data Binding
 
-Sensitive fields of your POJOs can be annotated with `@EncryptedField`.
+Sensitive fields of your POJOs can be annotated with `@Encrypted`.
 Let's use this class as an example:
 
 ```java
 public class Employee {
-  @EncryptedField
+  @Encrypted
   private boolean replicant;
 
   // alternatively you could annotate the getter or setter
@@ -166,8 +166,8 @@ Cluster cluster = Cluster.connect("localhost",
 
 If you need more control of which fields get decrypted, or if you prefer
 working with the Couchbase `JsonObject` tree model, you can use
-a `JsonObjectCrypto` instance from the cluster environment to read and
-write encrypted field values of a `JsonObject`.
+a `JsonObjectCrypto` instance to read and write encrypted field values
+of a `JsonObject`.
 
 ```java
 Collection collection = cluster.bucket("myBucket").defaultCollection();
