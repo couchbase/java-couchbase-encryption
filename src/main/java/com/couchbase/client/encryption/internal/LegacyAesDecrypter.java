@@ -13,7 +13,7 @@ import com.couchbase.client.encryption.EncryptionResult;
 import com.couchbase.client.encryption.Keyring;
 import com.couchbase.client.encryption.errors.CryptoKeyNotFoundException;
 import com.couchbase.client.encryption.errors.InvalidCiphertextException;
-import com.couchbase.client.encryption.errors.InvalidKeySizeException;
+import com.couchbase.client.encryption.errors.InvalidCryptoKeyException;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
@@ -128,7 +128,7 @@ public class LegacyAesDecrypter implements Decrypter {
     final int actualSize = key.size();
     if (actualSize != getKeySize()) {
       key.destroy();
-      throw new InvalidKeySizeException(
+      throw new InvalidCryptoKeyException(
           algorithm() + " requires key with " + getKeySize() + " bytes but key '" + keyName + "' has " + actualSize + " bytes.");
     }
     return key;

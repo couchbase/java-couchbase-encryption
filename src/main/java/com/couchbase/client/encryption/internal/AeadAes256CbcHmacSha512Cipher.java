@@ -9,7 +9,7 @@ package com.couchbase.client.encryption.internal;
 
 import com.couchbase.client.core.annotation.Stability;
 import com.couchbase.client.encryption.errors.InvalidCiphertextException;
-import com.couchbase.client.encryption.errors.InvalidKeySizeException;
+import com.couchbase.client.encryption.errors.InvalidCryptoKeyException;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
@@ -152,7 +152,7 @@ public class AeadAes256CbcHmacSha512Cipher {
 
   private static void checkKeyLength(byte[] key) {
     if (key.length != 64) {
-      throw new InvalidKeySizeException("Expected key to be 64 bytes but got " + key.length + " bytes.");
+      throw new InvalidCryptoKeyException("Expected key to be 64 bytes but got " + key.length + " bytes.");
     }
   }
 

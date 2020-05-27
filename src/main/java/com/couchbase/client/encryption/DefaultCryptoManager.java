@@ -9,9 +9,10 @@ package com.couchbase.client.encryption;
 
 import com.couchbase.client.core.encryption.CryptoManager;
 import com.couchbase.client.core.util.Validators;
-import com.couchbase.client.encryption.errors.CryptoException;
 import com.couchbase.client.encryption.errors.DecrypterNotFoundException;
+import com.couchbase.client.encryption.errors.DecryptionFailureException;
 import com.couchbase.client.encryption.errors.EncrypterNotFoundException;
+import com.couchbase.client.encryption.errors.EncryptionFailureException;
 import com.couchbase.client.encryption.internal.LegacyAesDecrypter;
 import com.couchbase.client.encryption.internal.LegacyRsaDecrypter;
 
@@ -146,8 +147,8 @@ public class DefaultCryptoManager implements CryptoManager {
       return encrypted.asMap();
 
     } catch (Exception e) {
-      throwIfInstanceOf(e, CryptoException.class);
-      throw new CryptoException("Encryption failed", e);
+      throwIfInstanceOf(e, EncryptionFailureException.class);
+      throw new EncryptionFailureException("Encryption failed; " + e.getMessage(), e);
     }
   }
 
@@ -158,8 +159,8 @@ public class DefaultCryptoManager implements CryptoManager {
       return getDecrypter(encrypted).decrypt(encrypted);
 
     } catch (Exception e) {
-      throwIfInstanceOf(e, CryptoException.class);
-      throw new CryptoException("Decryption failed", e);
+      throwIfInstanceOf(e, DecryptionFailureException.class);
+      throw new DecryptionFailureException("Decryption failed; " + e.getMessage(), e);
     }
   }
 

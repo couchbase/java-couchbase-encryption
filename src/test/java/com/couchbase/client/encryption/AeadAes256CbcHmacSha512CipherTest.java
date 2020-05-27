@@ -2,7 +2,7 @@ package com.couchbase.client.encryption;
 
 import com.couchbase.client.core.deps.io.netty.buffer.ByteBufUtil;
 import com.couchbase.client.encryption.errors.InvalidCiphertextException;
-import com.couchbase.client.encryption.errors.InvalidKeySizeException;
+import com.couchbase.client.encryption.errors.InvalidCryptoKeyException;
 import com.couchbase.client.encryption.internal.AeadAes256CbcHmacSha512Cipher;
 import org.junit.jupiter.api.Test;
 
@@ -108,13 +108,13 @@ class AeadAes256CbcHmacSha512CipherTest {
 
   @Test
   void decryptBadKeySize() throws Exception {
-    assertThrows(InvalidKeySizeException.class, () ->
+    assertThrows(InvalidCryptoKeyException.class, () ->
         cipherWithFixedIv.decrypt(new byte[1], ciphertext, associatedData));
   }
 
   @Test
   void encryptBadKeySize() throws Exception {
-    assertThrows(InvalidKeySizeException.class, () ->
+    assertThrows(InvalidCryptoKeyException.class, () ->
         cipherWithFixedIv.encrypt(new byte[1], ciphertext, associatedData));
   }
 }
