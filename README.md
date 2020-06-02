@@ -13,7 +13,7 @@ _Use of this software is subject to the
 ```xml
 <dependency>
     <groupId>com.couchbase.client</groupId>
-    <artifactId>encryption</artifactId>
+    <artifactId>couchbase-encryption</artifactId>
     <version>${version}</version>
 </dependency>
 ```
@@ -185,4 +185,43 @@ collection.upsert("treasureMap", document);
 JsonObject readItBack = collection.get("treasureMap").contentAsObject();
 JsonObjectCrypto readItBackCrypto = crypto.withObject(readItBack);
 System.out.println(readItBackCrypto.getString("locationOfBuriedTreasure"));
+```
+
+## Creating Encryption Keys
+
+The AEAD_AES_256_CBC_HMAC_SHA512 algortihm included in this library uses
+encryption keys that are 64 bytes long.
+
+Here's an example that shows how to create a Java key store file containing
+a suitable encryption key:
+
+```java
+KeyStore keyStore = KeyStore.getInstance("JCEKS");
+keyStore.load(null); // initialize new empty key store
+
+// Generate 64 random bytes
+SecureRandom random = new SecureRandom();
+byte[] keyBytes = new byte[64];
+random.nextBytes(keyBytes);
+
+// Add a new key called "my-key" to the key store
+KeyStoreKeyring.setSecretKey(keyStore, "my-key", keyBytes,
+    "protection-password".toCharArray());
+
+// Write the key store to disk
+try (OutputStream os = new FileOutputStream("MyKeystoreFile.jceks")) {
+  keyStore.store(os, "integrity-password".toCharArray());
+}
+```
+
+And here's how to use that file to create a `Keyring` for use with
+Couchbase Field-Level Encryption:
+```java
+KeyStore keyStore = KeyStore.getInstance("JCEKS");
+try (InputStream is = new FileInputStream("MyKeystoreFile.jceks")) {
+  keyStore.load(is, "integrity-password".toCharArray());
+}
+
+KeyStoreKeyring keyring = new KeyStoreKeyring(
+    keyStore, keyName -> "protection-password");
 ```
