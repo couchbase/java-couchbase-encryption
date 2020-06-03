@@ -2,11 +2,15 @@
 
 This library adds support for Field-Level Encryption (FLE) to the Couchbase
 Java SDK. It includes cryptographic algorithms and keyrings
-you can use out of the box, and also provides a framework for implementing
+you can use out of the box, and provides a framework for implementing
 your own crypto components.
 
 _Use of this software is subject to the
 [Couchbase Inc. Enterprise Subscription License Agreement v7](https://www.couchbase.com/ESLA01162020)._
+
+## Compatibility
+
+Version `3.0.0-pre.1` of this library requires Couchbase Java SDK version `3.0.5` or later.
 
 ## Maven Coordinates
 
