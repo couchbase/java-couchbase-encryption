@@ -158,7 +158,7 @@ mapper.registerModule(new EncryptionModule(cryptoManager));
 
 ClusterEnvironment env = ClusterEnvironment.builder()
     .cryptoManager(cryptoManager)
-    .jsonSerializer(new JacksonJsonSerializer(mapper))
+    .jsonSerializer(JacksonJsonSerializer.create(mapper))
     .build();
 
 Cluster cluster = Cluster.connect("localhost",
