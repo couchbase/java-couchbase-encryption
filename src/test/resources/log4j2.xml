@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2021 Couchbase, Inc.
+  ~
+  ~ Use of this software is subject to the Couchbase Inc. Enterprise Subscription License Agreement v7
+  ~ which may be found at https://www.couchbase.com/ESLA01162020.
+  -->
+
+<!--
+  The is the fallback logging config used when the connector is run within an IDE.
+  For the shipped logging config, see: src/dist/config/log4j2.xml
+-->
+<Configuration status="INFO">
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+      <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger - %msg%n"/>
+    </Console>
+  </Appenders>
+  <Loggers>
+    <Root level="info">
+      <AppenderRef ref="Console"/>
+    </Root>
+    <!--<Logger name="org.testcontainers" level="trace"/>-->
+  </Loggers>
+</Configuration>
