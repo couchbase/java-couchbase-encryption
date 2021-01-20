@@ -7,7 +7,6 @@
 
 package com.couchbase.client.encryption.internal;
 
-import com.couchbase.client.core.annotation.Stability;
 import com.couchbase.client.encryption.errors.CryptoException;
 
 import javax.crypto.Cipher;
@@ -19,7 +18,6 @@ import java.util.Optional;
  * A factory for Ciphers and Macs that falls back to the default
  * security provider chain if no security provider is specified.
  */
-@Stability.Internal
 class CryptoFactory {
   private final Optional<Provider> provider;
 

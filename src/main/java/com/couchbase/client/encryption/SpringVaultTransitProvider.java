@@ -14,7 +14,7 @@ import org.springframework.vault.core.VaultTransitOperations;
 import org.springframework.vault.support.Ciphertext;
 import org.springframework.vault.support.Plaintext;
 
-import static com.couchbase.client.core.util.CbStrings.nullToEmpty;
+import static com.couchbase.client.encryption.internal.LangHelper.nullToEmpty;
 import static java.util.Objects.requireNonNull;
 
 /**

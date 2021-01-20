@@ -7,8 +7,6 @@
 
 package com.couchbase.client.encryption.errors;
 
-import com.couchbase.client.core.error.context.ErrorContext;
-
 /**
  * Thrown when a message cannot be encrypted or decrypted because a required key is missing.
  */
@@ -17,15 +15,7 @@ public class CryptoKeyNotFoundException extends CryptoException {
     super(message);
   }
 
-  public CryptoKeyNotFoundException(String message, ErrorContext ctx) {
-    super(message, ctx);
-  }
-
   public CryptoKeyNotFoundException(String message, Throwable cause) {
     super(message, cause);
-  }
-
-  public CryptoKeyNotFoundException(String message, Throwable cause, ErrorContext ctx) {
-    super(message, cause, ctx);
   }
 }

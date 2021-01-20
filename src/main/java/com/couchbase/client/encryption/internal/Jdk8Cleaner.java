@@ -7,7 +7,6 @@
 
 package com.couchbase.client.encryption.internal;
 
-import com.couchbase.client.core.annotation.Stability;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +25,6 @@ import static java.util.Objects.requireNonNull;
  * java.lang.ref.Cleaner
  * </a>
  */
-@Stability.Internal
 public class Jdk8Cleaner {
   private static final Logger log = LoggerFactory.getLogger(Jdk8Cleaner.class);
 

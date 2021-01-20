@@ -7,7 +7,6 @@
 
 package com.couchbase.client.encryption.internal;
 
-import com.couchbase.client.core.annotation.Stability;
 import com.couchbase.client.encryption.errors.InvalidCiphertextException;
 import com.couchbase.client.encryption.errors.InvalidCryptoKeyException;
 
@@ -21,7 +20,7 @@ import java.security.Provider;
 import java.security.SecureRandom;
 import java.util.Arrays;
 
-import static com.couchbase.client.core.util.CbObjects.defaultIfNull;
+import static com.couchbase.client.encryption.internal.LangHelper.defaultIfNull;
 
 /**
  * Implements the AEAD_AES_256_CBC_HMAC_SHA512 encryption algorithm specified by
@@ -68,7 +67,6 @@ import static com.couchbase.client.core.util.CbObjects.defaultIfNull;
  * </ol>
  * <p>
  */
-@Stability.Internal
 public class AeadAes256CbcHmacSha512Cipher {
   private static final int AUTH_TAG_LEN = 32; // bytes
   private static final int IV_LEN = 16; // bytes

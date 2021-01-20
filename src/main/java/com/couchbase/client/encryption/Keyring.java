@@ -24,8 +24,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import static com.couchbase.client.core.util.CbCollections.copyToUnmodifiableList;
-import static com.couchbase.client.core.util.CbStrings.removeStart;
+import static com.couchbase.client.encryption.internal.LangHelper.copyToUnmodifiableList;
+import static com.couchbase.client.encryption.internal.LangHelper.removeStart;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -37,7 +37,7 @@ import static java.util.Objects.requireNonNull;
  * For maximum compatibility across implementations, a key name should:
  * <ul>
  * <li>contain no more than 240 characters
- * <li>contain only lowercase alphanumeric characters, ‘-’ or ‘.’
+ * <li>contain only lowercase alphanumeric characters, ‘-’, or ‘.’
  * <li>start with an alphanumeric character
  * <li>end with an alphanumeric character
  * </ul>

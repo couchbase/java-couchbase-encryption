@@ -7,7 +7,6 @@
 
 package com.couchbase.client.encryption.internal;
 
-import com.couchbase.client.core.annotation.Stability;
 import com.couchbase.client.encryption.Keyring;
 
 import static com.couchbase.client.encryption.internal.Zeroizer.zeroizeWhenUnreachable;
@@ -21,7 +20,6 @@ import static java.util.Objects.requireNonNull;
  * @implNote This class makes defensive copies of the byte array in order
  * to guarantee immutability, which is important since keys may be cached.
  */
-@Stability.Internal
 public class KeyImpl implements Keyring.Key {
   private final String id;
   private final byte[] bytes;

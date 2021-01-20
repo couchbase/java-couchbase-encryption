@@ -7,8 +7,6 @@
 
 package com.couchbase.client.encryption.internal;
 
-import com.couchbase.client.core.annotation.Stability;
-
 import javax.crypto.SecretKey;
 import java.io.Closeable;
 
@@ -19,7 +17,6 @@ import static java.util.Objects.requireNonNull;
  * Cousin of SecretKeySpec whose {@link #destroy()} method fills the
  * encoded form of the key with zeros (instead of throwing DestroyFailedException).
  */
-@Stability.Internal
 public class ZeroizableSecretKey implements SecretKey, Closeable {
   private final byte[] bytes;
   private final String algorithm;

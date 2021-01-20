@@ -8,7 +8,6 @@
 package com.couchbase.client.encryption;
 
 import com.couchbase.client.core.encryption.CryptoManager;
-import com.couchbase.client.core.util.Validators;
 import com.couchbase.client.encryption.errors.DecrypterNotFoundException;
 import com.couchbase.client.encryption.errors.DecryptionFailureException;
 import com.couchbase.client.encryption.errors.EncrypterNotFoundException;
@@ -20,10 +19,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import static com.couchbase.client.core.util.CbCollections.isNullOrEmpty;
-import static com.couchbase.client.core.util.CbObjects.defaultIfNull;
-import static com.couchbase.client.core.util.CbStrings.removeStart;
-import static com.couchbase.client.core.util.CbThrowables.throwIfInstanceOf;
+import static com.couchbase.client.encryption.internal.LangHelper.defaultIfNull;
+import static com.couchbase.client.encryption.internal.LangHelper.isNullOrEmpty;
+import static com.couchbase.client.encryption.internal.LangHelper.removeStart;
+import static com.couchbase.client.encryption.internal.LangHelper.throwIfInstanceOf;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Objects.requireNonNull;
 
@@ -42,6 +41,9 @@ public class DefaultCryptoManager implements CryptoManager {
     private final Map<String, Decrypter> algorithmToDecrypter = new HashMap<>();
     private final Map<String, Encrypter> aliasToEncrypter = new HashMap<>();
 
+    /**
+     * Registers a decrypter.
+     */
     public Builder decrypter(Decrypter decrypter) {
       final Decrypter previouslyRegistered = algorithmToDecrypter.putIfAbsent(decrypter.algorithm(), decrypter);
       if (previouslyRegistered != null) {
@@ -50,8 +52,13 @@ public class DefaultCryptoManager implements CryptoManager {
       return this;
     }
 
+    /**
+     * Registers an encrypter and assigns it an alias.
+     */
     public Builder encrypter(String alias, Encrypter encrypter) {
-      Validators.notNullOrEmpty(alias, "Encrypter alias");
+      if (isNullOrEmpty(alias)) {
+        throw new IllegalArgumentException("Encrypter alias cannot be null or empty");
+      }
       final Encrypter previouslyRegistered = aliasToEncrypter.putIfAbsent(alias, encrypter);
       if (previouslyRegistered != null) {
         throw new IllegalStateException("Encrypter alias '" + alias + "' is already associated with " + previouslyRegistered);
@@ -115,7 +122,9 @@ public class DefaultCryptoManager implements CryptoManager {
      * {@value #DEFAULT_ENCRYPTED_FIELD_NAME_PREFIX} is used.
      */
     public Builder encryptedFieldNamePrefix(String encryptedFieldNamePrefix) {
-      Validators.notNullOrEmpty(encryptedFieldNamePrefix, "Encrypted field prefix");
+      if (isNullOrEmpty(encryptedFieldNamePrefix)) {
+        throw new IllegalArgumentException("Encrypted field prefix cannot be null or empty");
+      }
       this.encryptedFieldNamePrefix = encryptedFieldNamePrefix;
       return this;
     }

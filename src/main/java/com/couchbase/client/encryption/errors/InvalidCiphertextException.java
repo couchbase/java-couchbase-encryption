@@ -7,22 +7,12 @@
 
 package com.couchbase.client.encryption.errors;
 
-import com.couchbase.client.core.error.context.ErrorContext;
-
 public class InvalidCiphertextException extends CryptoException {
   public InvalidCiphertextException(String message) {
     super(message);
   }
 
-  public InvalidCiphertextException(String message, ErrorContext ctx) {
-    super(message, ctx);
-  }
-
   public InvalidCiphertextException(String message, Throwable cause) {
     super(message, cause);
-  }
-
-  public InvalidCiphertextException(String message, Throwable cause, ErrorContext ctx) {
-    super(message, cause, ctx);
   }
 }

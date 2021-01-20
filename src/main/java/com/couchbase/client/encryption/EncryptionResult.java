@@ -11,7 +11,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.couchbase.client.core.util.CbCollections.mapOf;
+import static java.util.Collections.singletonMap;
 
 /**
  * The encrypted form of a message, consisting of an encryption
@@ -36,7 +36,7 @@ public class EncryptionResult {
    * to decrypt this result.
    */
   public static EncryptionResult forAlgorithm(String algorithmName) {
-    return EncryptionResult.fromMap(mapOf("alg", algorithmName));
+    return EncryptionResult.fromMap(singletonMap("alg", algorithmName));
   }
 
   public String getAlgorithm() {

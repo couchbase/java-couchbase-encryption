@@ -7,7 +7,6 @@
 
 package com.couchbase.client.encryption.internal;
 
-import com.couchbase.client.core.annotation.Stability;
 import com.couchbase.client.encryption.Decrypter;
 import com.couchbase.client.encryption.EncryptionResult;
 import com.couchbase.client.encryption.Keyring;
@@ -28,7 +27,6 @@ import static java.util.Objects.requireNonNull;
 /**
  * Decrypts messages encrypted by the legacy {@code RsaCryptoProvider} class.
  */
-@Stability.Internal
 public class LegacyRsaDecrypter implements Decrypter {
   private final Function<String, String> publicKeyNameToPrivateKeyName;
   private final Keyring keyring;

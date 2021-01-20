@@ -7,8 +7,6 @@
 
 package com.couchbase.client.encryption.errors;
 
-import com.couchbase.client.core.error.context.ErrorContext;
-
 /**
  * Thrown when the {@link com.couchbase.client.core.encryption.CryptoManager}
  * is unable to decrypt a ciphertext.
@@ -21,15 +19,7 @@ public class DecryptionFailureException extends CryptoException {
     super(message);
   }
 
-  public DecryptionFailureException(String message, ErrorContext ctx) {
-    super(message, ctx);
-  }
-
   public DecryptionFailureException(String message, Throwable cause) {
     super(message, cause);
-  }
-
-  public DecryptionFailureException(String message, Throwable cause, ErrorContext ctx) {
-    super(message, cause, ctx);
   }
 }

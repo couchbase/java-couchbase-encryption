@@ -7,7 +7,6 @@
 
 package com.couchbase.client.encryption.internal;
 
-import com.couchbase.client.core.annotation.Stability;
 import com.couchbase.client.encryption.Decrypter;
 import com.couchbase.client.encryption.EncryptionResult;
 import com.couchbase.client.encryption.Keyring;
@@ -34,7 +33,6 @@ import static java.util.Objects.requireNonNull;
  * @see #aes128
  * @see #aes256
  */
-@Stability.Internal
 public class LegacyAesDecrypter implements Decrypter {
   private final String algorithmName;
   private final int encryptionKeySize;

@@ -7,9 +7,6 @@
 
 package com.couchbase.client.encryption.internal;
 
-import com.couchbase.client.core.annotation.Stability;
-import com.couchbase.client.core.deps.io.netty.util.concurrent.DefaultThreadFactory;
-
 import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,12 +20,11 @@ import static java.util.Objects.requireNonNull;
  * The way Java manages memory makes it impossible to guarantee sensitive info
  * is completely wiped from memory, but we can make a best effort.
  */
-@Stability.Internal
 public class Zeroizer implements Closeable {
   private final List<byte[]> zeroizeMe = new ArrayList<>();
 
   private static final Jdk8Cleaner cleaner = Jdk8Cleaner.create(
-      new DefaultThreadFactory("zeroizer", true));
+      new DaemonThreadFactory("zeroizer"));
 
   private static class ZeriozationTask implements Runnable {
     private final byte[] bytes;
