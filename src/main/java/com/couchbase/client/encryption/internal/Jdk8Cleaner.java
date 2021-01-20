@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.ref.PhantomReference;
 import java.lang.ref.ReferenceQueue;
-import java.util.IdentityHashMap;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -29,7 +29,9 @@ public class Jdk8Cleaner {
   private static final Logger log = LoggerFactory.getLogger(Jdk8Cleaner.class);
 
   private final ReferenceQueue<Object> queue = new ReferenceQueue<>();
-  private final Set<CleanableImpl> references = newSetFromMap(new IdentityHashMap<>());
+
+  // Only purpose is to prevent its contents from being prematurely garbage collected.
+  private final Set<CleanableImpl> references = newSetFromMap(new ConcurrentHashMap<>());
 
   public static Jdk8Cleaner create(ThreadFactory factory) {
     return new Jdk8Cleaner(factory);
