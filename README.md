@@ -10,7 +10,7 @@ _Use of this software is subject to the
 
 ## Compatibility
 
-Version `3.0.0-pre.1` of this library requires Couchbase Java SDK version `3.0.5` or later.
+Couchbase Java SDK version `3.0.5` or later is required.
 
 ## Maven Coordinates
 
