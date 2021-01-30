@@ -11,6 +11,7 @@ import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.Collection;
 import com.couchbase.client.java.env.ClusterEnvironment;
+import com.couchbase.client.java.json.JsonArray;
 import com.couchbase.client.java.json.JsonObject;
 import com.couchbase.client.java.json.JsonObjectCrypto;
 import org.junit.jupiter.api.AfterAll;
@@ -29,7 +30,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.security.KeyStore;
 import java.time.Duration;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 import static com.couchbase.client.core.util.CbCollections.mapOf;
@@ -50,6 +51,7 @@ class IntegrationTest {
   private static final String KEYSTORE_INTEGRITY_PASSWORD = "integrity";
   private static final Function<String, String> KEYSTORE_PROTECTION_PASSWORD =
       keyName -> keyName + "-protection";
+
 
   @BeforeAll
   static void startCouchbase() {
@@ -104,6 +106,148 @@ class IntegrationTest {
 
     String decryptedValue = obj.crypto(collection).getString("magicWord");
     assertEquals(decryptedValue, "xyzzy");
+  }
+
+  @Test
+  void testEncryptString() throws Exception {
+    standardInitWith(standardCryptoManager(simpleKeyring()));
+
+    JsonObject obj = JsonObject.create();
+    JsonObjectCrypto crypto = obj.crypto(collection);
+
+    crypto.put("encryptString", "Hello World");
+
+    collection.upsert("hello", obj);
+    obj = collection.get("hello").contentAsObject();
+
+    assertNotEquals(obj.get("encryptString"), "Hello World");
+    assertTrue(obj.get("encrypted$encryptString") instanceof JsonObject);
+
+    String decryptedValue = obj.crypto(collection).getString("encryptString");
+    assertEquals(decryptedValue, "Hello World");
+  }
+
+  @Test
+  public void testEncryptNumber() throws Exception {
+    standardInitWith(standardCryptoManager(simpleKeyring()));
+    JsonObject obj = JsonObject.create();
+    JsonObjectCrypto crypto = obj.crypto(collection);
+    crypto.put("number", 10);
+
+    collection.upsert("foo", obj);
+    obj = collection.get("foo").contentAsObject();
+
+    assertNotEquals(obj.get("number"), "10");
+    assertTrue(obj.get("encrypted$number") instanceof JsonObject);
+
+    Integer decryptedValue = obj.crypto(collection).getInt("number");
+    assertEquals(decryptedValue, 10);
+  }
+
+  @Test
+  public void testEncryptArray() throws Exception {
+
+    standardInitWith(standardCryptoManager(simpleKeyring()));
+    JsonObject obj = JsonObject.create();
+    JsonObjectCrypto crypto = obj.crypto(collection);
+    String[] array = new String[]{"Java", "JavaFX", "N1QL", "Couchbase", "KV", "Query"};
+    List<String> arrayList = Arrays.asList(array);
+    crypto.put("array", arrayList);
+
+    collection.upsert("arr", obj);
+    obj = collection.get("arr").contentAsObject();
+
+    assertNotEquals(obj.get("array"), array);
+    assertTrue(obj.get("encrypted$array") instanceof JsonObject);
+
+    JsonArray decryptedValue = obj.crypto(collection).getArray("array");
+    for(int i=0; i<decryptedValue.size(); i++){
+      assertEquals(decryptedValue.get(i), array[i]);
+    }
+
+  }
+
+  @Test
+  public void testEncryptObject() throws Exception {
+    standardInitWith(standardCryptoManager(simpleKeyring()));
+    JsonObject obj = JsonObject.create();
+    JsonObjectCrypto crypto = obj.crypto(collection);
+    HashMap<String, Object> hmap= new HashMap<String, Object>();
+    hmap.put("FLE", "SDK FLE Standard");
+    crypto.put("hmap", hmap);
+
+    collection.upsert("objs", obj);
+    obj = collection.get("objs").contentAsObject();
+
+    assertNotEquals(obj.get("hmap"), hmap);
+    assertTrue(obj.get("encrypted$hmap") instanceof JsonObject);
+
+    JsonObject decryptedValue = obj.crypto(collection).getObject("hmap");
+    assertEquals(decryptedValue.get("FLE"), hmap.get("FLE"));
+
+  }
+
+  @Test
+  public void testEncryptList() throws Exception {
+    standardInitWith(standardCryptoManager(simpleKeyring()));
+    JsonObject obj = JsonObject.create();
+    JsonObjectCrypto crypto = obj.crypto(collection);
+    List<String> list= Arrays.asList("kv", "N1QL", "index");
+    crypto.put("list", list);
+
+    collection.upsert("lists", obj);
+    obj = collection.get("lists").contentAsObject();
+
+    assertNotEquals(obj.get("list"), list);
+    assertTrue(obj.get("encrypted$list") instanceof JsonObject);
+
+    JsonArray decryptedValue = obj.crypto(collection).getArray("list");
+    for(int i=0; i<decryptedValue.size(); i++){
+      assertEquals(decryptedValue.get(i), list.get(i));
+    }
+
+  }
+
+
+  @Test
+  public void testEncryptNestedObject() throws Exception {
+    standardInitWith(standardCryptoManager(simpleKeyring()));
+    JsonObject obj = JsonObject.create();
+    JsonObjectCrypto crypto = obj.crypto(collection);
+
+    JsonObject jsonDataString = JsonObject.fromJson("{\n" +
+            "  \"userinfo\": [\n" +
+            "    {\n" +
+            "      \"firstName\": \"John\",\n" +
+            "      \"lastName\": \"Doe\",\n" +
+            "      \"username\": \"jdoe\"\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"firstName\": \"Alex\",\n" +
+            "      \"lastName\": \"Daniel\",\n" +
+            "      \"username\": \"adaniel\"\n" +
+            "    }\n" +
+            "  ],\n" +
+            "  \"login\": [\n" +
+            "    {\n" +
+            "      \"username\": \"ajoe\",\n" +
+            "      \"status\": \"loggedin\"\n" +
+            "    }\n" +
+            "  ]\n" +
+            "}");
+
+    crypto.put("jsonDataString", jsonDataString);
+
+    collection.upsert("foo", obj);
+    obj = collection.get("foo").contentAsObject();
+
+    assertNotEquals(obj.get("jsonDataString"), jsonDataString);
+    assertTrue(obj.get("encrypted$jsonDataString") instanceof JsonObject);
+
+    JsonObject decryptedValue = obj.crypto(collection).getObject("jsonDataString");
+    Object decryptedObj = decryptedValue.get("login");
+    assertEquals(decryptedObj, jsonDataString.get("login"));
+
   }
 
   private AeadAes256CbcHmacSha512Provider standardProvider(Keyring keyring) {
