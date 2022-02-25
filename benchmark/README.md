@@ -5,13 +5,12 @@ Uses the JMH benchmarking harness to measure performance of the Couchbase encryp
 ## Prerequisites
 
 * Java JDK 8 or later (JVM version may affect performance)
-* Maven
 
 ## One-time setup
 
 Build the benchmark JAR with this command:
 
-    mvn clean package
+    ./mvnw clean package
 
 ## Run the benchmark
 
