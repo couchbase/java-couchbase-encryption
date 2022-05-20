@@ -62,4 +62,21 @@ public class LangHelper {
     return c == null || c.isEmpty();
   }
 
+  public static String substringBetween(String s, String prefix, String suffix) {
+    if (s == null || prefix == null || suffix == null) {
+      return null;
+    }
+
+    int prefixIndex = s.indexOf(prefix);
+    if (prefixIndex == -1) {
+      return null;
+    }
+
+    int suffixIndex = s.indexOf(suffix, prefixIndex + prefix.length());
+    if (suffixIndex == -1) {
+      return null;
+    }
+
+    return s.substring(prefixIndex + prefix.length(), suffixIndex);
+  }
 }

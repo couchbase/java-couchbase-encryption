@@ -44,10 +44,11 @@ import static java.util.Objects.requireNonNull;
  * <p>
  *
  * @see #caching(Duration, int, Keyring)
- * @see #rotating(String, Comparator, ListableKeyring)
  * @see #reloading(Duration, Supplier)
  * @see #composite(Keyring...)
  * @see #fromMap(Map)
+ * @see RotatingKeyring
+ * @see FilesystemRotatingKeyring
  */
 public interface Keyring {
 
@@ -88,7 +89,7 @@ public interface Keyring {
    * the key. The caller should always call {@link Key#id()} to get
    * the returned key's actual ID.
    *
-   * @see #rotating(String, Comparator, ListableKeyring)
+   * @see RotatingKeyring
    */
   Optional<Key> get(String keyId);
 
@@ -175,7 +176,16 @@ public interface Keyring {
    * @param versionDelimiter separates a key's base name from its version
    * @param versionOrder Compares key versions. The greater version is considered more recent.
    * For ISO 8601 dates you can use {@link Comparator#naturalOrder()}.
+   *
+   * @deprecated This implementation overlooks an important detail; it lacks the ability to add a new
+   * version of a key without using it to encrypt new data. This is significant because the new key
+   * must be distributed to all application nodes before any node uses it to encrypt data, otherwise
+   * the other nodes will not be able to decrypt the data. Instead of this decorator method,
+   * please use {@link FilesystemRotatingKeyring} or your own custom subclass of {@link RotatingKeyring}.
+   * These classes let you designate a version of the key as "primary", and use the primary version to encrypt
+   * data even if it's not the latest version of the key.
    */
+  @Deprecated
   static Keyring rotating(String versionDelimiter, Comparator<String> versionOrder, ListableKeyring wrapped) {
     requireNonNull(wrapped);
     requireNonNull(versionDelimiter);
