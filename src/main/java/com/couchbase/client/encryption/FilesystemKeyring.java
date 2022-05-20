@@ -49,7 +49,7 @@ public class FilesystemKeyring implements ListableKeyring {
     }
   }
 
-  interface KeyFileFormat {
+  public interface KeyFileFormat {
     byte[] decode(byte[] fileBytes);
 
     KeyFileFormat RAW = bytes -> bytes;
