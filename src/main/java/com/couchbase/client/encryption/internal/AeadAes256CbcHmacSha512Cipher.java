@@ -23,7 +23,7 @@ import java.util.Arrays;
 import static com.couchbase.client.encryption.internal.LangHelper.defaultIfNull;
 
 /**
- * Implements the AEAD_AES_256_CBC_HMAC_SHA512 encryption algorithm specified by
+ * Wraps the library for the AEAD_AES_256_CBC_HMAC_SHA512 encryption algorithm specified by
  * <a href="https://tools.ietf.org/html/draft-mcgrew-aead-aes-cbc-hmac-sha2-05">
  * "Authenticated Encryption with AES-CBC and HMAC-SHA"</a>.
  * <p>
