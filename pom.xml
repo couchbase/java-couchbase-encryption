@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.couchbase.client</groupId>
@@ -14,18 +14,11 @@
     <url>https://www.couchbase.com</url>
 
     <properties>
-        <java-compat.version>1.8</java-compat.version>
+        <maven.compiler.release>8</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <junit.version>5.8.2</junit.version>
-        <couchbase.core.version>2.3.0</couchbase.core.version>
-        <couchbase.client.version>3.3.0</couchbase.client.version>
-        <!-- Don't sign artifacts unless the 'stage' or 'release' profile is active -->
-        <gpg.skip>true</gpg.skip>
-
-        <!-- When deploying, don't promote artifacts from staging repository unless 'release' profile is active -->
-        <autoReleaseAfterClose>false</autoReleaseAfterClose>
+        <couchbase.client.version>3.8.2</couchbase.client.version>
     </properties>
 
     <dependencies>
@@ -33,7 +26,7 @@
         <dependency>
             <groupId>com.couchbase.client</groupId>
             <artifactId>core-io</artifactId>
-            <version>${couchbase.core.version}</version>
+            <version>${couchbase.client.version}</version>
             <!-- Prevent Maven users from accidentally using a version
                  of `core-io` that's incompatible with `java-client` -->
             <scope>provided</scope>
@@ -62,26 +55,14 @@
         <!-- Test Dependencies -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-params</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit.version}</version>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.13.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
-            <version>2.17.2</version>
+            <version>2.24.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -104,7 +85,7 @@
 
     <organization>
         <name>Couchbase, Inc.</name>
-        <url>http://couchbase.com</url>
+        <url>https://couchbase.com</url>
     </organization>
 
     <scm>
@@ -119,7 +100,7 @@
 
     <issueManagement>
         <system>Couchbase JIRA</system>
-        <url>http://www.couchbase.com/issues/browse/JCBC</url>
+        <url>https://www.couchbase.com/issues/browse/JCBC</url>
     </issueManagement>
 
     <developers>
@@ -130,24 +111,59 @@
         </developer>
     </developers>
 
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
-
-    <repositories>
-        <repository>
-            <id>snapshots-repo</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-            <releases><enabled>false</enabled></releases>
-            <snapshots><enabled>true</enabled></snapshots>
-        </repository>
-    </repositories>
-
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>3.5.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>3.2.7</version>
+                    <executions>
+                        <execution>
+                            <id>sign-artifacts</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>sign</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
         <plugins>
+            <!-- Require profile `snapshot` or `release` when deploying.
+                 Having explicit profiles (instead of relying on deploy plugin's
+                 automatic snapshot/release routing) prevents the "on push"
+                 snapshot publish action from accidentally publishing a release version. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce-deploy-has-active-profile</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireProfileIdsExist/>
+                                <requireActiveProfile>
+                                    <profiles>snapshot,release</profiles>
+                                    <all>false</all>
+                                </requireActiveProfile>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -185,35 +201,16 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-                <configuration>
-                    <source>${java-compat.version}</source>
-                    <target>${java-compat.version}</target>
-                </configuration>
+                <version>3.13.0</version>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.6</version>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.13</version>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.7.0</version>
                 <extensions>true</extensions>
                 <configuration>
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>${autoReleaseAfterClose}</autoReleaseAfterClose>
+                    <autoPublish>true</autoPublish>
+                    <waitUntil>published</waitUntil>
                 </configuration>
             </plugin>
             <plugin>
@@ -256,9 +253,36 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.7.0</version>
+                <configuration>
+                    <flattenMode>ossrh</flattenMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <!-- Bind to phase `package` instead of `process-resources`
+                             to prevent conflict with maven-shade-plugin.
+                             See https://stackoverflow.com/q/52552329/457612 -->
+                        <phase>package</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.2</version>
+                <version>3.3.0</version>
             </plugin>
         </plugins>
     </build>
@@ -266,16 +290,15 @@
     <profiles>
         <profile>
             <id>release</id>
-            <properties>
-                <gpg.skip>false</gpg.skip>
-                <autoReleaseAfterClose>true</autoReleaseAfterClose>
-            </properties>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-enforcer-plugin</artifactId>
-                        <version>3.0.0</version>
                         <executions>
                             <execution>
                                 <id>enforce-release</id>
@@ -301,25 +324,25 @@
         </profile>
         <profile>
             <id>snapshot</id>
-            <properties>
-                <gpg.skip>false</gpg.skip>
-            </properties>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-enforcer-plugin</artifactId>
-                        <version>3.0.0</version>
                         <executions>
                             <execution>
-                                <id>enforce-no-releases</id>
+                                <id>enforce-snapshot</id>
                                 <goals>
                                     <goal>enforce</goal>
                                 </goals>
                                 <configuration>
                                     <rules>
                                         <requireSnapshotVersion>
-                                            <message>Not a snapshot version</message>
+                                            <message>Not a SNAPSHOT version!</message>
                                         </requireSnapshotVersion>
                                     </rules>
                                     <fail>true</fail>
