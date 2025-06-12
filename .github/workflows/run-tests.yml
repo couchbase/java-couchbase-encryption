@@ -20,6 +20,8 @@ jobs:
           - java-distribution: 'temurin'
             java-version: '8'
 
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
